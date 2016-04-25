@@ -1,0 +1,32 @@
+{
+  "name": "cordova-plugin-onyx",
+  "version": "0.0.1",
+  "description": "Cordova plugin to use ONYX",
+  "cordova": {
+    "id": "cordova-plugin-onyx",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjwheatley/cordova-plugin-onyx"
+  },
+  "keywords": [
+    "cordova",
+    "plugin",
+    "android",
+    "fingerprint",
+    "authentication",
+    "ecosystem:cordova",
+    "cordova-android",
+    "onyx",
+    "touchless"
+  ],
+  "author": "Matthew Wheatley",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/mjwheatley/cordova-plugin-onyx/issues"
+  },
+  "homepage": "https://github.com/mjwheatley/cordova-plugin-onyx#readme"
+}

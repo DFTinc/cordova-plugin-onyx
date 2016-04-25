@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="cordova-plugin-onyx"
+        version="0.0.5">
+    <name>Onyx</name>
+    <description>Cordova plugin to use Onyx</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,plugin,android,fingerprint,authentication,touchless,onyx</keywords>
+    <repo></repo>
+    <issue></issue>
+
+    <js-module src="www/OnyxPlugin.js" name="onyx">
+        <clobbers target="navigator.onyx" />
+    </js-module>
+
+    <js-module src="www/OnyxConstants.js" name="Onyx">
+        <clobbers target="Onyx" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-feature android:name="android.hardware.camera" />
+            <uses-feature android:name="android.hardware.camera.autofocus" />
+            <uses-feature android:name="android.hardware.flash" />
+        </config-file>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="OnyxPlugin" >
+                <param name="android-package" value="com.dft.cordova.plugin.onyx.OnyxPlugin"/>
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.dft.cordova.plugin.onyx.OnyxActivity" />
+            <activity
+                    android:name="com.dft.onyx.verify.SelfVerifyActivity"
+                    android:screenOrientation="portrait" >
+            </activity>
+            <activity android:name="com.dft.onyx.enroll.ui.TipsActivity"
+                      android:screenOrientation="portrait" >
+            </activity>
+            <activity
+                    android:name="com.dft.onyx.wizardroid.enrollwizard.SelfEnrollWizard"
+                    android:screenOrientation="portrait" >
+            </activity>
+            <activity
+                    android:name="com.dft.onyx.guide.OnyxGuideActivity"
+                    android:screenOrientation="portrait" >
+            </activity>
+            <activity
+                    android:name="com.dft.onyx.fingerwizard.FingerWizard"
+                    android:screenOrientation="portrait" >
+            </activity>
+        </config-file>
+
+        <source-file src="src/android/OnyxPlugin.java" target-dir="src/com/dft/cordova/plugin/onyx" />
+        <source-file src="src/android/OnyxActivity.java" target-dir="src/com/dft/cordova/plugin/onyx" />
+        <source-file src="build-extras.gradle" target-dir="." />
+
+    </platform>
+
+</plugin>
