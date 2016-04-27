@@ -28,6 +28,7 @@
 
 - (void)enroll:(CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
+    _callbackId = command.callbackId;
     NSDictionary* args = [command.arguments objectAtIndex:0];
     _OnyxAction = [args objectForKey:@"action"];
     NSLog(@"action: %@", _OnyxAction);
@@ -36,7 +37,7 @@
         [self startOnyxEnrollment:[args objectForKey:@"onyxLicense"]];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:_callbackId];
     }
 }
 
