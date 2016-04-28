@@ -1,3 +1,6 @@
+### This is not free software.  This plugin uses the Onyx sofware development kits (SDKs) for Android and iOS.  It requires a license agreement with: 
+[Diamond Fortress Technologies, Inc.](http://www.diamondfortress.com)
+
 # cordova-plugin-onyx
 
 This plugin defines a global `navigator.onyx` object, which provides an API for capturing a fingerprint image, for in-app fingerprint enrollment and verification, and for fingerprint template generation for server side fingerprint authentication.
@@ -11,6 +14,7 @@ Although the object is attached to the global scoped `navigator`, it is not avai
 
 
 ## Installation
+Contact [Diamond Fortress Technologies, Inc.](http://www.diamondfortress.com) and sign a license agreement to obtain a license key.
 
 This requires cordova 5.0+
 ```
@@ -19,7 +23,33 @@ This requires cordova 5.0+
 ```
     meteor add cordova:cordova-plugin-onyx
 ```
-    
+
+## Quick Use Example
+####MeteorJS applications
+Create a settings.json file to load at runtime.
+```
+{
+    "public": {
+        "onyxLicense": "xxxx-xxxx-xxxx-x-x"
+    }
+}
+```
+
+Reference the Onyx license when you execute an Onyx action.
+```
+var onyxOptions = {
+    onyxLicense = Meteor.settings.public.onyxLicense;
+    action = Onyx.Action.IMAGE;
+}
+navigator.onyx.exec(onyxOptions, onyxSuccessCallback, onyxErrorCallback);
+```
+
+Run the application on a mobile device
+```
+meteor run android-device --settings settings.json
+```
+
+
 # API Reference
 
 
@@ -112,6 +142,8 @@ Results return by Onyx.
 | imageUri | <code>string</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | Data URI containing base64 encode fingerprint JPEG image.  `"data:image/jpeg;base64," + base64EncodedString`  |
 | template | <code>string</code> | <code>[Onyx.Action.TEMPLATE](#module_Onyx.Action)</code> <code>[Onyx.Action.ENROLL](#module_Onyx.Action)</code> | Base64 encode fingerprint template to send to backend server. |
 | nfiqScore | <code>number</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The result score of a verify action. |
+| isVerified | <code>boolean</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The fingerprint match result. |
+
 
 ---
 
