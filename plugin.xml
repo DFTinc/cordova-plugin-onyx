@@ -6,7 +6,7 @@
     <name>Onyx</name>
     <description>Cordova plugin to use Onyx</description>
     <license>Apache 2.0</license>
-    <keywords>cordova,plugin,android,fingerprint,authentication,touchless,onyx</keywords>
+    <keywords>cordova,plugin,android,ios,iphone,fingerprint,authentication,touchless,onyx</keywords>
     <repo></repo>
     <issue></issue>
 
