@@ -10,5 +10,13 @@ module.exports = {
         VERIFY: "verify",
         TEMPLATE: "template",
         IMAGE: "image"
+    },
+    /*
+    * @enum {string}
+    * */
+    ImageType: {
+        RAW: "raw",
+        PREPROCESSED: "preprocessed",
+        ENHANCED: "enhanced"
     }
 }

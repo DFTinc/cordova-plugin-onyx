@@ -5,6 +5,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaInterface;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -93,6 +94,7 @@ public class OnyxPlugin extends CordovaPlugin {
 					mContext.startActivity(onyxIntent);
 				}
 			});
+			mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
 			mPluginResult.setKeepCallback(true);
 			mCallbackContext.sendPluginResult(mPluginResult);
 			return true;
@@ -100,14 +102,20 @@ public class OnyxPlugin extends CordovaPlugin {
 		return false;
 	}
 
-	public static void onFinished(JSONObject result) {
-		mPluginResult = new PluginResult(PluginResult.Status.OK);
-		try {
-			result.put("action", mAction);
-		} catch (JSONException e) {
-			Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
+	public static void onFinished(int resultCode, JSONObject result) {
+		if (resultCode == Activity.RESULT_OK) {
+			mPluginResult = new PluginResult(PluginResult.Status.OK);
+			try {
+				result.put("action", mAction);
+			} catch (JSONException e) {
+				Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
+			}
+			mCallbackContext.success(result);
+		} else if (resultCode == Activity.RESULT_CANCELED) {
+			mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+			mCallbackContext.error("Cancelled");
 		}
-		mCallbackContext.success(result);
+
 		mCallbackContext.sendPluginResult(mPluginResult);
 	}
 }

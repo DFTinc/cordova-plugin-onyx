@@ -4,6 +4,7 @@
 @interface CDVOnyxPlugin ()
 
 @property NSString* OnyxAction;
+@property NSString* OnyxImageType;
 @property NSString* callbackId;
 @property NSData* registeredFingerprintTemplate;
 
@@ -16,6 +17,11 @@
     _callbackId = command.callbackId;
     NSDictionary* args = [command.arguments objectAtIndex:0];
     _OnyxAction = [args objectForKey:@"action"];
+    _OnyxImageType = nil;
+    _OnyxImageType = [args objectForKey:@"imageType"];
+    if (_OnyxImageType == nil) {
+        _OnyxImageType = @"preprocessed";
+    }
     NSLog(@"action: %@", _OnyxAction);
 
     if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:@"image"]) {
@@ -119,7 +125,14 @@
     CDVPluginResult* pluginResult = nil;
 
     // Get results from Onyx
-    _preprocessedImage = fingerprint.processedImage;
+    if ([_OnyxImageType isEqualToString:@"raw"]) {
+        _fingerprintImage = fingerprint.sourceImage;
+    } else if ([_OnyxImageType isEqualToString:@"preprocessed"]) {
+        _fingerprintImage = fingerprint.processedImage;
+    } else if ([_OnyxImageType isEqualToString:@"enhanced"]) {
+        _fingerprintImage = fingerprint.enhancedImage;
+    }
+
     _fingerprintTemplate = [NSData dataWithData:fingerprint.fingerprintTemplate];
 
     // Prepare response keys
@@ -132,7 +145,7 @@
     // Get response values
     if ([_OnyxAction isEqualToString:@"image"]) {
         // Generate imageUri for fingerprint image
-        NSData* imageData = UIImageJPEGRepresentation(_preprocessedImage, 1.0);
+        NSData* imageData = UIImageJPEGRepresentation(_fingerprintImage, 1.0);
         imageUri = [NSString stringWithFormat:@"data:image/jpeg;base64,%@", [imageData base64EncodedStringWithOptions:0]];
 
     } else if ([_OnyxAction isEqualToString:@"enroll"] || [_OnyxAction isEqualToString:@"template"]) {

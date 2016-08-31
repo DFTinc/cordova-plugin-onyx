@@ -6,7 +6,7 @@
 
 @interface CDVOnyxPlugin :CDVPlugin <UINavigationControllerDelegate, UIAlertViewDelegate, OnyxViewControllerDelegate> {
         NSData* _fingerprintTemplate;
-        UIImage* _preprocessedImage;
+        UIImage* _fingerprintImage;
 }
 
 - (void) image:(CDVInvokedUrlCommand*)command;

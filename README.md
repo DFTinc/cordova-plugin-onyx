@@ -17,6 +17,7 @@ Although the object is attached to the global scoped `navigator`, it is not avai
 Contact [Diamond Fortress Technologies, Inc.](http://www.diamondfortress.com) and sign a license agreement to obtain a license key.
 
 This requires cordova 5.0+
+
 ```
     cordova plugin add cordova-plugin-onyx
 ```
@@ -27,6 +28,7 @@ This requires cordova 5.0+
 ## Quick Use Example
 ####MeteorJS applications
 Create a settings.json file to load at runtime.
+
 ```
 {
     "public": {
@@ -36,6 +38,7 @@ Create a settings.json file to load at runtime.
 ```
 
 Reference the Onyx license when you execute an Onyx action.
+
 ```
 var onyxOptions = {
     onyxLicense = Meteor.settings.public.onyxLicense;
@@ -45,6 +48,7 @@ navigator.onyx.exec(onyxOptions, onyxSuccessCallback, onyxErrorCallback);
 ```
 
 Run the application on a mobile device
+
 ```
 meteor run android-device --settings settings.json
 ```
@@ -84,7 +88,8 @@ __Supported Platforms__
 | errorCallback | <code>[onError](#module_onyx.onError)</code> |  |
 
 **Example**  
-```js
+
+```
 navigator.onyx.exec(onyxOptions, onyxSuccess, onyxError);
 ```
 
@@ -109,7 +114,8 @@ Callback function that provides the image data.
 | result | <code>[onyx](#module_onyx.OnyxResult)</code> | Object containing the results of the executed action. |
 
 **Example**  
-```js
+
+```
 // Show image
 //
 function onyxSuccess(result) {
@@ -129,7 +135,8 @@ Optional parameters to customize onyx settings.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | onyxLicense | <code>number</code> | <code>xxxx-xxxx-xxxx-x-x</code> | **Required** Your license key for Onyx. |
-| action | <code>[Action](#module_Onyx.Action)</code> |  | **Required** Choose the action for onyx to execute. |
+| action | <code>[Action](#module_Onyx.Action)</code> | undefined | **Required** Choose the action for onyx to execute. |
+| imageType | <code>[ImageType](#module_Onyx.ImageType)</code> | PREPROCESSED | Choose the Onyx ImageType to return as a base64 encoded data URI. |
 
 ### onyx.OnyxResult : <code>Object</code>
 Results return by Onyx.
@@ -139,7 +146,7 @@ Results return by Onyx.
 
 | Name | Type | Action | Description |
 | --- | --- | --- | --- |
-| imageUri | <code>string</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | Data URI containing base64 encode fingerprint JPEG image.  `"data:image/jpeg;base64," + base64EncodedString`  |
+| imageUri | <code>string</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | Data URI containing base64 encode fingerprint JPEG image.  `"data:image/jpeg;base64," + base64EncodedString` Defaults to imageType: Onyx.ImageType.PREPROCESSED |
 | template | <code>string</code> | <code>[Onyx.Action.TEMPLATE](#module_Onyx.Action)</code> <code>[Onyx.Action.ENROLL](#module_Onyx.Action)</code> | Base64 encode fingerprint template to send to backend server. |
 | nfiqScore | <code>number</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The result score of a verify action. |
 | isVerified | <code>boolean</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The fingerprint match result. |
@@ -154,9 +161,31 @@ Results return by Onyx.
 **Kind**: static constants for actions of <code>[Onyx](#module_Onyx)</code>  
 **Properties**
 
-| Name | Type | Default | Description |
+| Name | Type | Value | Description |
 | --- | --- | --- | --- |
 | IMAGE | <code>string</code> | <code>image</code> | Return a base64 encoded fingerprint image URI. |
 | TEMPLATE | <code>string</code> | <code>template</code> | Return a base64 encoded fingerprint template |
 | ENROLL | <code>string</code> | <code>enroll</code> | Enroll a fingerprint for your application to be stored on the local device and return the base64 encoded fingerprint template. |
 | VERIFY | <code>string</code> | <code>verify</code> | Performs on device verification against the enrolled fingerprint. |
+
+<a name="module_Onyx.ImageType"></a>
+### Onyx.ImageType : <code>JSON Object</code>
+**Kind**: static constants for image types of <code>[Onyx](#module_Onyx)</code>  
+**Properties**
+
+| Name | Type | Value | Description |
+| --- | --- | --- | --- |
+| RAW | <code>string</code> | <code>raw</code> | Return the raw fingerprint image as a base64 encoded data URI. |
+| PREPROCESSED | <code>string</code> | <code>preprocessed</code> | Return the preprocessed fingerprint image as a base64 encoded data URI. |
+| ENHANCED | <code>string</code> | <code>enhanced</code> | Return the enhanced fingerprint image as a base64 encoded data URI. |
+
+**Example**  
+
+```
+var onyxOptions = {
+            onyxLicense: MY_ONYX_LICENSE,
+            action: Onyx.Action.IMAGE, 
+            imageType: Onyx.ImageType.ENHANCED
+        }
+navigator.onyx.exec(onyxOptions, onyxSuccess, onyxError);
+```

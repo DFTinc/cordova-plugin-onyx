@@ -34,8 +34,12 @@ public class OnyxActivity extends Activity {
     public static final int RC_ONYX_IMAGE = 46843;
     public static final int RC_ONYX_VERIFY = 837439;
     public static final int RC_ONYX_TEMPLATE = 83675283;
+    private static final String ONYX_IMAGE_TYPE_RAW = "raw";
+    private static final String ONYX_IMAGE_TYPE_PREPROCESSED = "preprocessed";
+    private static final String ONYX_IMAGE_TYPE_ENHANCED = "enhanced";
     private Context mContext;
-    private File mPreprocessedImageFile;
+    private File mFingerprintImageFile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,21 +54,39 @@ public class OnyxActivity extends Activity {
         JSONObject arg_object = null;
         String onyxLicense = null;
         String action = null;
+        String imageTypeParam = null;
         try {
             arg_object = new JSONObject(argString);
             onyxLicense = arg_object.getString("onyxLicense");
             action = arg_object.getString("action");
+            imageTypeParam = arg_object.getString("imageType");
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         if (action.equals("image")) {
-            // Create a file to hold the preprocessed image bitmap
-            mPreprocessedImageFile = new File(Environment.getExternalStorageDirectory(),
+            String imageType = "preprocessed";
+            if (imageTypeParam != null) {
+                imageType = imageTypeParam;
+            }
+            // Create a file to hold the fingerprint image bitmap
+            mFingerprintImageFile = new File(Environment.getExternalStorageDirectory(),
                     "FingerImage.jpg");
+            File rawImageFile = null;
+            File preprocessedImageFile = null;
+            File enhancedImageFile = null;
+
+            if (imageType.equalsIgnoreCase(ONYX_IMAGE_TYPE_RAW)) {
+                rawImageFile = mFingerprintImageFile;
+            } else if (imageType.equalsIgnoreCase(ONYX_IMAGE_TYPE_PREPROCESSED)) {
+                preprocessedImageFile = mFingerprintImageFile;
+            } else if (imageType.equalsIgnoreCase(ONYX_IMAGE_TYPE_ENHANCED)) {
+                enhancedImageFile = mFingerprintImageFile;
+            }
+
             Intent fingerImageIntent = FingerWizardIntentHelper.getFingerWizardIntent(
                     mContext, onyxLicense, false, false, CaptureConfiguration.Flip.NONE,
-                    mPreprocessedImageFile, Bitmap.CompressFormat.JPEG);
+                    rawImageFile, enhancedImageFile, preprocessedImageFile, Bitmap.CompressFormat.JPEG);
             startActivityForResult(fingerImageIntent, RC_ONYX_IMAGE);
         } else if (action.equals("enroll")) {
             EnrollWizardBuilder ewb = new EnrollWizardBuilder();
@@ -76,7 +98,7 @@ public class OnyxActivity extends Activity {
         } else if (action.equals("template")) {
             Intent fingerImageIntent = FingerWizardIntentHelper.getFingerWizardIntent(
                     mContext, onyxLicense, false, false, CaptureConfiguration.Flip.NONE,
-                    null, null);
+                    null, null, null, null);
             startActivityForResult(fingerImageIntent, RC_ONYX_TEMPLATE);
         } else if (action.equals("verify")) {
             if (fingerprintExists()) {
@@ -97,7 +119,7 @@ public class OnyxActivity extends Activity {
         JSONObject result = new JSONObject();
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == RC_ONYX_IMAGE) {
-                byte[] bytes = fileToArrayOfBytes(mPreprocessedImageFile);
+                byte[] bytes = fileToArrayOfBytes(mFingerprintImageFile);
                 String encodedBytes = Base64.encodeToString(bytes, 0);
                 String imageUri = "data:image/jpeg;base64," + encodedBytes;
                 try {
@@ -145,7 +167,7 @@ public class OnyxActivity extends Activity {
                 }
             }
         }
-        OnyxPlugin.onFinished(result);
+        OnyxPlugin.onFinished(resultCode, result);
         finish();
     }
 
