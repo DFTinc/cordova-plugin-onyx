@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,102 +21,113 @@ import java.io.File;
 
 public class OnyxPlugin extends CordovaPlugin {
 
-	public static final String TAG = "OnyxPlugin";
-	public static String mPackageName;
+    public static final String TAG = "OnyxPlugin";
+    public static String mPackageName;
 
-	public static CallbackContext mCallbackContext;
-	public static PluginResult mPluginResult;
+    public static CallbackContext mCallbackContext;
+    public static PluginResult mPluginResult;
 
-	private Context mContext;
-	private static String mAction;
+    private Context mContext;
+    private static String mAction;
 
-	/** Alias for our key in the Android Key Store */
-	private static String mClientId;
-	/** Used to encrypt token */
-	private static String mClientSecret;
+    /**
+     * Alias for our key in the Android Key Store
+     */
+    private static String mClientId;
+    /**
+     * Used to encrypt token
+     */
+    private static String mClientSecret;
 
-	/**
-	 * Constructor.
-	 */
-	public OnyxPlugin() {
-	}
+    /**
+     * Constructor.
+     */
+    public OnyxPlugin() {
+    }
 
-	/**
-	 * Sets the context of the Command. This can then be used to do things like
-	 * get file paths associated with the Activity.
-	 *
-	 * @param cordova
-	 *            The context of the main Activity.
-	 * @param webView
-	 *            The CordovaWebView Cordova is running in.
-	 */
+    /**
+     * Sets the context of the Command. This can then be used to do things like
+     * get file paths associated with the Activity.
+     *
+     * @param cordova The context of the main Activity.
+     * @param webView The CordovaWebView Cordova is running in.
+     */
 
-	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-		super.initialize(cordova, webView);
-		Log.v(TAG, "Init Onyx");
-		mPackageName = cordova.getActivity().getApplicationContext().getPackageName();
-		mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-		mContext = cordova.getActivity().getApplicationContext();
-	}
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+        Log.v(TAG, "Init Onyx");
+        mPackageName = cordova.getActivity().getApplicationContext().getPackageName();
+        mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+        mContext = cordova.getActivity().getApplicationContext();
+    }
 
-	/**
-	 * Executes the request and returns PluginResult.
-	 *
-	 * @param action            The action to execute.
-	 * @param args              JSONArry of arguments for the plugin.
-	 * @param callbackContext   The callback id used when calling back into JavaScript.
-	 * @return                  A PluginResult object with a status and message.
-	 */
-	public boolean execute(final String action,
-						   JSONArray args,
-						   CallbackContext callbackContext) throws JSONException {
-		mCallbackContext = callbackContext;
-		Log.v(TAG, "OnyxPlugin action: " + action);
-		mAction = action;
+    /**
+     * Executes the request and returns PluginResult.
+     *
+     * @param action          The action to execute.
+     * @param args            JSONArry of arguments for the plugin.
+     * @param callbackContext The callback id used when calling back into JavaScript.
+     * @return A PluginResult object with a status and message.
+     */
+    public boolean execute(final String action,
+                           JSONArray args,
+                           CallbackContext callbackContext) throws JSONException {
+        mCallbackContext = callbackContext;
+        Log.v(TAG, "OnyxPlugin action: " + action);
+        mAction = action;
 
-		final JSONObject arg_object = args.getJSONObject(0);
-		if (!arg_object.has("onyxLicense") || !arg_object.has("action")) {
-			mPluginResult = new PluginResult(PluginResult.Status.ERROR);
-			mCallbackContext.error("Missing required parameters");
-			mCallbackContext.sendPluginResult(mPluginResult);
-			return true;
-		}
+        final JSONObject arg_object = args.getJSONObject(0);
+        if (!arg_object.has("onyxLicense") || !arg_object.has("action")) {
+            mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+            mCallbackContext.error("Missing required parameters");
+            mCallbackContext.sendPluginResult(mPluginResult);
+            return true;
+        }
 
-		if (mAction.equals("enroll") || mAction.equals("verify") ||
-				mAction.equals("template") || mAction.equals("image")) {
+        if (mAction.equals("enroll") || mAction.equals("verify") ||
+                mAction.equals("template") || mAction.equals("image")) {
 
-			cordova.getActivity().runOnUiThread(new Runnable() {
-				public void run() {
-					Bundle bundle = new Bundle();
-					bundle.putString("options", arg_object.toString());
-					Intent onyxIntent = new Intent(mContext, OnyxActivity.class)
-							.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					onyxIntent.putExtra("options", arg_object.toString());
-					mContext.startActivity(onyxIntent);
-				}
-			});
-			mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-			mPluginResult.setKeepCallback(true);
-			mCallbackContext.sendPluginResult(mPluginResult);
-			return true;
-		}
-		return false;
-	}
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("options", arg_object.toString());
+                    Intent onyxIntent = new Intent(mContext, OnyxActivity.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    onyxIntent.putExtra("options", arg_object.toString());
+                    mContext.startActivity(onyxIntent);
+                }
+            });
+            mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+            mPluginResult.setKeepCallback(true);
+            mCallbackContext.sendPluginResult(mPluginResult);
+            return true;
+        }
+        return false;
+    }
 
-	public static void onFinished(int resultCode, JSONObject result) {
-		if (resultCode == Activity.RESULT_OK) {
-			mPluginResult = new PluginResult(PluginResult.Status.OK);
-			try {
-				result.put("action", mAction);
-			} catch (JSONException e) {
-				Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
-			}
-			mCallbackContext.success(result);
-		} else if (resultCode == Activity.RESULT_CANCELED) {
-			mPluginResult = new PluginResult(PluginResult.Status.ERROR);
-			mCallbackContext.error("Cancelled");
-		}
+    public static void onFinished(int resultCode, JSONObject result) {
+        if (resultCode == Activity.RESULT_OK) {
+            mPluginResult = new PluginResult(PluginResult.Status.OK);
+            try {
+                result.put("action", mAction);
+            } catch (JSONException e) {
+                String errorMessage = "Failed to set JSON key value pair: " + e.getMessage();
+                Log.e(TAG, errorMessage);
+                mCallbackContext.error(errorMessage);
+                mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+            }
+            mCallbackContext.success(result);
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+            mCallbackContext.error("Cancelled");
+        }
 
-		mCallbackContext.sendPluginResult(mPluginResult);
-	}
+        mCallbackContext.sendPluginResult(mPluginResult);
+    }
+
+    public static void onError(String errorMessage) {
+        mCallbackContext.error(errorMessage);
+        mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+        mCallbackContext.sendPluginResult(mPluginResult);
+    }
 }

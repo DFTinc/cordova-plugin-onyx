@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.dft.onyx.FingerprintTemplate;
+import com.dft.onyx.core;
 import com.dft.onyx.enroll.util.Consts;
 import com.dft.onyx.enroll.util.EnrolledFingerprintDetails;
 import com.dft.onyx.enroll.util.EnrollmentMetric;
@@ -24,6 +25,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by mjwheatley on 4/19/16.
@@ -61,7 +65,9 @@ public class OnyxActivity extends Activity {
             action = arg_object.getString("action");
             imageTypeParam = arg_object.getString("imageType");
         } catch (JSONException e) {
-            e.printStackTrace();
+            String errorMessage = "Error parsing argumets: " + e.toString();
+            Log.e(TAG, errorMessage);
+            OnyxPlugin.onError(errorMessage);
         }
 
         if (action.equals("image")) {
@@ -93,7 +99,12 @@ public class OnyxActivity extends Activity {
             ewb.setLicenseKey(onyxLicense);
             ewb.setUseSelfEnroll(true);
             ewb.setUseOnyxGuide(true, true, false);
+            ewb.setNumEnrollCapturesPerScale(1);
+            ewb.setNumEnrollScales(1);
             Intent enrollWizardIntent = ewb.build(mContext);
+//            Intent enrollWizardIntent = FingerWizardIntentHelper.getFingerWizardIntent(
+//                    mContext, onyxLicense, false, false, CaptureConfiguration.Flip.NONE,
+//                    null, null, null, null);
             startActivityForResult(enrollWizardIntent, RC_ONYX_ENROLL);
         } else if (action.equals("template")) {
             Intent fingerImageIntent = FingerWizardIntentHelper.getFingerWizardIntent(
@@ -108,6 +119,14 @@ public class OnyxActivity extends Activity {
             } else {
                 Toast.makeText(mContext, "No fingerprints enrolled.",
                         Toast.LENGTH_LONG).show();
+                JSONObject result = new JSONObject();
+                try {
+                    result.put("message", "No fingerprints enrolled.");
+                } catch (JSONException e) {
+                    String errorMessage = "Failed to set JSON key value pair: " + e.toString();
+                    Log.e(TAG, errorMessage);
+                    OnyxPlugin.onError(errorMessage);
+                }
             }
         }
 
@@ -117,15 +136,20 @@ public class OnyxActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         JSONObject result = new JSONObject();
+        String errorMessage = null;
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == RC_ONYX_IMAGE) {
                 byte[] bytes = fileToArrayOfBytes(mFingerprintImageFile);
-                String encodedBytes = Base64.encodeToString(bytes, 0);
-                String imageUri = "data:image/jpeg;base64," + encodedBytes;
-                try {
-                    result.put("imageUri", imageUri);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
+                if (null != bytes) {
+                    String encodedBytes = Base64.encodeToString(bytes, 0);
+                    String imageUri = "data:image/jpeg;base64," + encodedBytes;
+                    try {
+                        result.put("imageUri", imageUri);
+                    } catch (JSONException e) {
+                        errorMessage = "Failed to set JSON key value pair: " + e.toString();
+                    }
+                } else {
+                    errorMessage = "Error getting fingerprint image bytes.";
                 }
             } else if (requestCode == RC_ONYX_ENROLL || requestCode == RC_ONYX_TEMPLATE) {
                 // Get the EnrollmentMetric
@@ -140,34 +164,67 @@ public class OnyxActivity extends Activity {
                         em = fingerprintDetails.getEnrolledEnrollmentMetric(mContext);
                     }
                 }
-                // Get the finger location
+
                 if (em != null) {
-                    // If you want a fingerprint template for enrollment, and can be
-                    // matched using Onyx, get it in the following manner
-                    FingerprintTemplate ft = em.getFingerprintTemplateArray()[0];
-                    if (null != ft) {
-                        String bytesString = Base64.encodeToString(
-                                ft.getData(),
-                                Base64.URL_SAFE | Base64.NO_WRAP
-                        ).trim();
-                        int nfiqScore = ft.getNfiqScore();
-                        try {
-                            result.put("template", bytesString);
-                            result.put("nfiqScore", nfiqScore);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
+                    // Get best fingerprint template from array
+                    FingerprintTemplate[] fpTemplateArray = em.getFingerprintTemplateArray();
+                    List<FingerprintTemplate> fpTemplateList = Arrays.asList(fpTemplateArray);
+                    FingerprintTemplate bestTemplate = null;
+                    for (FingerprintTemplate fpt : fpTemplateList) {
+                        if (null != fpt) {
+                            if (null == bestTemplate) {
+                                bestTemplate = fpt;
+                            } else if (fpt.getNfiqScore() > bestTemplate.getNfiqScore()) {
+                                bestTemplate = fpt;
+                            }
                         }
                     }
+
+                    if (null != bestTemplate) {
+                        if (bestTemplate.getNfiqScore() < 4) {
+                            try {
+                                float score = core.verify(bestTemplate, bestTemplate);
+                                if (score >= 34.0f) {
+                                    String bytesString = Base64.encodeToString(
+                                            bestTemplate.getData(),
+                                            Base64.URL_SAFE | Base64.NO_WRAP
+                                    ).trim();
+                                    int nfiqScore = bestTemplate.getNfiqScore();
+
+                                    result.put("template", bytesString);
+                                    result.put("nfiqScore", nfiqScore);
+                                } else {
+                                    errorMessage = "Fingerprint template failed self validation.";
+                                }
+                            } catch (JSONException e) {
+                                errorMessage = "Failed to set JSON key value pair: " + e.toString();
+                            } catch (Exception e) {
+                                errorMessage = "Exception verifying templates: " + e.toString();
+                            }
+                        } else {
+                            errorMessage = "Insufficent NFIQ Score";
+                        }
+                    } else {
+                        errorMessage = "Fingerprint template not found.";
+                    }
+                } else {
+                    errorMessage = "Unable to retrieve enrollment metric.";
                 }
             } else if (requestCode == RC_ONYX_VERIFY) {
                 try {
                     result.put("isVerified", true);
                 } catch (JSONException e) {
-                    Log.e(TAG, "Failed to set JSON key value pair: " + e.getMessage());
+                    errorMessage = "Failed to set JSON key value pair: " + e.toString();
                 }
             }
         }
-        OnyxPlugin.onFinished(resultCode, result);
+
+        if (null != errorMessage) {
+            Log.e(TAG, errorMessage);
+            OnyxPlugin.onError(errorMessage);
+        } else {
+            OnyxPlugin.onFinished(resultCode, result);
+        }
         finish();
     }
 
@@ -183,6 +240,8 @@ public class OnyxActivity extends Activity {
             fileInputStream.close();
         } catch(Exception e) {
             e.printStackTrace();
+            String errorMessage = "Error getting file bytes: " + e.toString();
+            Log.e(TAG, errorMessage);
         }
         return bytes;
     }
