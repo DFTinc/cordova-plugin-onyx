@@ -10,8 +10,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 
-#define CHECK_LICENSE true
-
 #define OnyxBlue [UIColor colorWithRed:(float)(54.0/255.0) green:(float)(152.0/255.0) blue:(float)(211.0/255.0) alpha:1.0]
 #define fingerStepSize 15
 #define fingerStepPadding 10
