@@ -17,6 +17,7 @@ module.exports = {
     ImageType: {
         RAW: "raw",
         PREPROCESSED: "preprocessed",
-        ENHANCED: "enhanced"
+        ENHANCED: "enhanced",
+        WSQ: "wsq"
     }
-}
+};
