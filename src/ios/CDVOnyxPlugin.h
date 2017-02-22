@@ -5,8 +5,6 @@
 #import <OnyxKit/NetworkUtil.h>
 
 @interface CDVOnyxPlugin :CDVPlugin <UINavigationControllerDelegate, UIAlertViewDelegate, OnyxViewControllerDelegate> {
-        NSData* _fingerprintTemplate;
-        UIImage* _fingerprintImage;
 }
 
 - (void) image:(CDVInvokedUrlCommand*)command;

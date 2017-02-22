@@ -4,27 +4,38 @@
 @interface CDVOnyxPlugin ()
 
 @property NSString* OnyxAction;
-@property NSString* OnyxImageType;
+@property NSMutableArray* OnyxImageTypes;
 @property NSString* callbackId;
 @property NSData* registeredFingerprintTemplate;
 
 @end
 
 @implementation CDVOnyxPlugin
+NSString * const PLUGIN_ACTION_ENROLL = @"enroll";
+NSString * const PLUGIN_ACTION_VERIFY = @"verify";
+NSString * const PLUGIN_ACTION_TEMPLATE = @"template";
+NSString * const PLUGIN_ACTION_IMAGE = @"image";
+
+NSString * const ONYX_IMAGE_TYPE_RAW = @"raw";
+NSString * const ONYX_IMAGE_TYPE_PREPROCESSED = @"preprocessed";
+NSString * const ONYX_IMAGE_TYPE_ENHANCED = @"enhanced";
+NSString * const ONYX_IMAGE_TYPE_WSQ = @"wsq";
+
 
 - (void)image:(CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     _callbackId = command.callbackId;
     NSDictionary* args = [command.arguments objectAtIndex:0];
     _OnyxAction = [args objectForKey:@"action"];
-    _OnyxImageType = nil;
-    _OnyxImageType = [args objectForKey:@"imageType"];
-    if (_OnyxImageType == nil) {
-        _OnyxImageType = @"preprocessed";
+    _OnyxImageTypes = nil;
+    _OnyxImageTypes = [args objectForKey:@"imageTypes"];
+    if (_OnyxImageTypes == nil) {
+        _OnyxImageTypes =  [[NSMutableArray alloc]init];
+        [_OnyxImageTypes addObject:@"preprocessed"];
     }
     NSLog(@"action: %@", _OnyxAction);
 
-    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:@"image"]) {
+    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:PLUGIN_ACTION_IMAGE]) {
         [self startOnyxCapture:[args objectForKey:@"onyxLicense"]];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
@@ -39,7 +50,7 @@
     _OnyxAction = [args objectForKey:@"action"];
     NSLog(@"action: %@", _OnyxAction);
 
-    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:@"enroll"]) {
+    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:PLUGIN_ACTION_ENROLL]) {
         [self startOnyxEnrollment:[args objectForKey:@"onyxLicense"]];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
@@ -54,7 +65,7 @@
     _OnyxAction = [args objectForKey:@"action"];
     NSLog(@"action: %@", _OnyxAction);
 
-    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:@"verify"]) {
+    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:PLUGIN_ACTION_VERIFY]) {
         // Retrieve stored fingerprint template
         _registeredFingerprintTemplate = [[NSUserDefaults standardUserDefaults] objectForKey:@"enrolledFingerprintTemplate"];
         if (_registeredFingerprintTemplate != nil) {
@@ -76,7 +87,7 @@
     _OnyxAction = [args objectForKey:@"action"];
     NSLog(@"action: %@", _OnyxAction);
 
-    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:@"template"]) {
+    if (args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:PLUGIN_ACTION_TEMPLATE]) {
         [self startOnyxCapture:[args objectForKey:@"onyxLicense"]];
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
@@ -123,43 +134,71 @@
 - (void) Onyx:(OnyxViewController *)controller didOutputProcessedFingerprint:(ProcessedFingerprint *)fingerprint fromSet:(NSArray *)fingerprints {
     NSLog(@"Onyx: didOutputProcessedFingerprint()");
     CDVPluginResult* pluginResult = nil;
+    
+    NSData* fingerprintTemplate = [NSData dataWithData:fingerprint.fingerprintTemplate];
 
-    // Get results from Onyx
-    if ([_OnyxImageType isEqualToString:@"raw"]) {
-        _fingerprintImage = fingerprint.sourceImage;
-    } else if ([_OnyxImageType isEqualToString:@"preprocessed"]) {
-        _fingerprintImage = fingerprint.processedImage;
-    } else if ([_OnyxImageType isEqualToString:@"enhanced"]) {
-        _fingerprintImage = fingerprint.enhancedImage;
-    }
-
-    _fingerprintTemplate = [NSData dataWithData:fingerprint.fingerprintTemplate];
-
-    // Prepare response keys
-    NSArray* keysArray = [NSArray arrayWithObjects: @"action", @"imageUri", @"template", @"isVerified", @"nfiqScore", nil];
-    NSString* imageUri = @"";
+    // Prepare variables for response values
+    NSMutableDictionary* imagesJSON;
     NSString* fptBase64EncodedString = @"";
     BOOL isVerified = NO;
     float nfiqScore = 0;
 
     // Get response values
-    if ([_OnyxAction isEqualToString:@"image"]) {
-        // Generate imageUri for fingerprint image
-        NSData* imageData = UIImageJPEGRepresentation(_fingerprintImage, 1.0);
-        imageUri = [NSString stringWithFormat:@"data:image/jpeg;base64,%@", [imageData base64EncodedStringWithOptions:0]];
+    if ([_OnyxAction isEqualToString:PLUGIN_ACTION_IMAGE]) {
+        NSLog(@"imageTypes: %@", _OnyxImageTypes);
+        
+        UIImage* fingerprintImage;
+        NSString* imageUriPrefix = @"data:image/jpeg;base64,%@";
+        NSData* imageData;
+        
+        NSString* rawImageUri = @"";
+        NSString* preprocessedImageUri = @"";
+        NSString* enhancedImageUri = @"";
+        NSMutableDictionary* wsqJSON;
 
-    } else if ([_OnyxAction isEqualToString:@"enroll"] || [_OnyxAction isEqualToString:@"template"]) {
-        if ([_OnyxAction isEqualToString:@"enroll"]) {
+        // Get results from Onyx
+        if ([_OnyxImageTypes containsObject:ONYX_IMAGE_TYPE_RAW]) {
+            fingerprintImage = fingerprint.sourceImage;
+            // Generate imageUri for fingerprint image
+            imageData = UIImageJPEGRepresentation(fingerprintImage, 1.0);
+            rawImageUri = [NSString stringWithFormat:imageUriPrefix, [imageData base64EncodedStringWithOptions:0]];
+        }
+        if ([_OnyxImageTypes containsObject:ONYX_IMAGE_TYPE_PREPROCESSED]) {
+            fingerprintImage = fingerprint.processedImage;
+            // Generate imageUri for fingerprint image
+            imageData = UIImageJPEGRepresentation(fingerprintImage, 1.0);
+            preprocessedImageUri = [NSString stringWithFormat:imageUriPrefix, [imageData base64EncodedStringWithOptions:0]];
+        }
+        if ([_OnyxImageTypes containsObject:ONYX_IMAGE_TYPE_ENHANCED]) {
+            fingerprintImage = fingerprint.enhancedImage;
+            // Generate imageUri for fingerprint image
+            imageData = UIImageJPEGRepresentation(fingerprintImage, 1.0);
+            enhancedImageUri = [NSString stringWithFormat:imageUriPrefix, [imageData base64EncodedStringWithOptions:0]];
+        }
+        if ([_OnyxImageTypes containsObject:ONYX_IMAGE_TYPE_WSQ]) {
+            NSString* encodedBytes = [NSString stringWithFormat:@"%@", [fingerprint.WSQ base64EncodedStringWithOptions:0]];
+            NSArray* wsqKeys = [NSArray arrayWithObjects: @"bytes", @"nfiqScore", nil];
+            NSArray* wsqValues = [NSArray arrayWithObjects:encodedBytes, [NSNumber numberWithFloat:fingerprint.nfiqscore], nil];
+            wsqJSON = [NSMutableDictionary dictionaryWithObjects:wsqValues forKeys:wsqKeys];
+        }
+
+        NSArray* imageKeys = [NSArray arrayWithObjects: @"raw", @"preprocessed", @"enhanced", @"wsq", nil];
+        NSArray* imageValues = [NSArray arrayWithObjects:rawImageUri, preprocessedImageUri, enhancedImageUri, wsqJSON, nil];
+        
+        imagesJSON = [NSMutableDictionary dictionaryWithObjects:imageValues forKeys:imageKeys];
+        
+    } else if ([_OnyxAction isEqualToString:PLUGIN_ACTION_ENROLL] || [_OnyxAction isEqualToString:PLUGIN_ACTION_TEMPLATE]) {
+        if ([_OnyxAction isEqualToString:PLUGIN_ACTION_ENROLL]) {
             // Store fingerprint template
-            [self storeEnrolledFingerprint:_fingerprintTemplate];
+            [self storeEnrolledFingerprint:fingerprintTemplate];
         }
         // Generate base64 encoded fingerprint template string
-        fptBase64EncodedString = [_fingerprintTemplate base64EncodedStringWithOptions:0];
+        fptBase64EncodedString = [fingerprintTemplate base64EncodedStringWithOptions:0];
 
-    } else if ([_OnyxAction isEqualToString:@"verify"]) {
+    } else if ([_OnyxAction isEqualToString:PLUGIN_ACTION_VERIFY]) {
         NSLog(@"Comparing prints");
 
-        nfiqScore = [OnyxMatch match:_registeredFingerprintTemplate with:_fingerprintTemplate];
+        nfiqScore = [OnyxMatch match:_registeredFingerprintTemplate with:fingerprintTemplate];
 
         NSLog(@"match value (%.2f)", nfiqScore);
         if (nfiqScore > 0.03) {
@@ -168,8 +207,10 @@
         }
     }
 
+    // Set response keys
+    NSArray* keysArray = [NSArray arrayWithObjects: @"action", @"images", @"template", @"isVerified", @"nfiqScore", nil];
     // Set response values
-    NSArray* valuesArray = [NSArray arrayWithObjects:_OnyxAction, imageUri, fptBase64EncodedString, [NSNumber numberWithBool:isVerified], [NSNumber numberWithFloat:nfiqScore], nil];
+    NSArray* valuesArray = [NSArray arrayWithObjects:_OnyxAction, imagesJSON, fptBase64EncodedString, [NSNumber numberWithBool:isVerified], [NSNumber numberWithFloat:nfiqScore], nil];
 
     // Create response object
     NSMutableDictionary* resultJSON = [NSMutableDictionary dictionaryWithObjects:valuesArray forKeys:keysArray];
