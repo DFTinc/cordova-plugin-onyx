@@ -27,18 +27,20 @@ public class OnyxPlugin extends CordovaPlugin {
     public static CallbackContext mCallbackContext;
     public static PluginResult mPluginResult;
 
+    public static final String PLUGIN_ACTION_ENROLL = "enroll";
+    public static final String PLUGIN_ACTION_VERIFY = "verify";
+    public static final String PLUGIN_ACTION_TEMPLATE = "template";
+    public static final String PLUGIN_ACTION_IMAGE = "image";
+    public static enum PluginAction {
+        ENROLL,
+        VERIFY,
+        TEMPLATE,
+        IMAGE
+    }
+    public static PluginAction mPluginAction;
+
     private Context mContext;
-    private static String mAction;
-
-    /**
-     * Alias for our key in the Android Key Store
-     */
-    private static String mClientId;
-    /**
-     * Used to encrypt token
-     */
-    private static String mClientSecret;
-
+    private static String mExecuteAction;
     /**
      * Constructor.
      */
@@ -74,7 +76,7 @@ public class OnyxPlugin extends CordovaPlugin {
                            CallbackContext callbackContext) throws JSONException {
         mCallbackContext = callbackContext;
         Log.v(TAG, "OnyxPlugin action: " + action);
-        mAction = action;
+        mExecuteAction = action;
 
         final JSONObject arg_object = args.getJSONObject(0);
         if (!arg_object.has("onyxLicense") || !arg_object.has("action")) {
@@ -84,8 +86,17 @@ public class OnyxPlugin extends CordovaPlugin {
             return true;
         }
 
-        if (mAction.equals("enroll") || mAction.equals("verify") ||
-                mAction.equals("template") || mAction.equals("image")) {
+        if (action.equalsIgnoreCase(PLUGIN_ACTION_ENROLL)) {
+            mPluginAction = PluginAction.ENROLL;
+        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_VERIFY)) {
+            mPluginAction = PluginAction.VERIFY;
+        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_TEMPLATE)) {
+            mPluginAction = PluginAction.TEMPLATE;
+        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_IMAGE)) {
+            mPluginAction = PluginAction.IMAGE;
+        }
+
+        if (null != mPluginAction) {
 
             cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
@@ -109,7 +120,7 @@ public class OnyxPlugin extends CordovaPlugin {
         if (resultCode == Activity.RESULT_OK) {
             mPluginResult = new PluginResult(PluginResult.Status.OK);
             try {
-                result.put("action", mAction);
+                result.put("action", mExecuteAction);
             } catch (JSONException e) {
                 String errorMessage = "Failed to set JSON key value pair: " + e.getMessage();
                 Log.e(TAG, errorMessage);
