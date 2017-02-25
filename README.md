@@ -136,9 +136,9 @@ Optional parameters to customize onyx settings.
 | --- | --- | --- | --- |
 | onyxLicense | <code>number</code> | <code>xxxx-xxxx-xxxx-x-x</code> | **Required** Your license key for Onyx. |
 | action | <code>[Action](#module_Onyx.Action)</code> | undefined | **Required** Choose the action for onyx to execute. |
-| imageType | <code>[ImageType](#module_Onyx.ImageType)</code> | PREPROCESSED | Choose the Onyx ImageType to return as a base64 encoded data URI. |
+| imageTypes | <code>Array<[ImageType](#module_Onyx.ImageType)></code> | <code>[[ImageType](#module_Onyx.ImageType).PREPROCESSED]</code> | Array of image types to return as a base64 encoded data URI's. |
 
-### onyx.OnyxResult : <code>Object</code>
+### onyx.OnyxResult : <code>JSON Object</code>
 Results return by Onyx.
 
 **Kind**: static typedef of <code>[onyx](#module_onyx)</code>  
@@ -146,8 +146,8 @@ Results return by Onyx.
 
 | Name | Type | Action | Description |
 | --- | --- | --- | --- |
-| imageUri | <code>string</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | Data URI containing base64 encode fingerprint JPEG image.  `"data:image/jpeg;base64," + base64EncodedString` Defaults to imageType: Onyx.ImageType.PREPROCESSED |
-| template | <code>string</code> | <code>[Onyx.Action.TEMPLATE](#module_Onyx.Action)</code> <code>[Onyx.Action.ENROLL](#module_Onyx.Action)</code> | Base64 encode fingerprint template to send to backend server. |
+| images | <code>JSON Object</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | JSON Object containing base64 encoded fingerprint JPEG images.  `"data:image/jpeg;base64," + base64EncodedString`. <br><br> Defaults to imageType: `Onyx.ImageType.PREPROCESSED`<br><br> { <br>&nbsp;&nbsp;&nbsp;&nbsp;"raw": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"preprocessed": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"enhanced": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"wsq": { <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bytes": "base64EncodedBytes", <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"nfiqScore": number<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>} |
+| template | <code>string</code> | <code>[Onyx.Action.TEMPLATE](#module_Onyx.Action)</code> <code>[Onyx.Action.ENROLL](#module_Onyx.Action)</code> | Base64 encoded fingerprint template to send to backend server. |
 | nfiqScore | <code>number</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The result score of a verify action. |
 | isVerified | <code>boolean</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The fingerprint match result. |
 
@@ -178,6 +178,7 @@ Results return by Onyx.
 | RAW | <code>string</code> | <code>raw</code> | Return the raw fingerprint image as a base64 encoded data URI. |
 | PREPROCESSED | <code>string</code> | <code>preprocessed</code> | Return the preprocessed fingerprint image as a base64 encoded data URI. |
 | ENHANCED | <code>string</code> | <code>enhanced</code> | Return the enhanced fingerprint image as a base64 encoded data URI. |
+| WSQ | <code>JSON Object</code> | <code>wsq</code> | Return a JSON Object containing the WSQ Image data.<br><br> `{ wsq: { bytes: base64EncodedString, nfiqScore: number } }` |
 
 **Example**  
 
@@ -185,7 +186,50 @@ Results return by Onyx.
 var onyxOptions = {
             onyxLicense: MY_ONYX_LICENSE,
             action: Onyx.Action.IMAGE, 
-            imageType: Onyx.ImageType.ENHANCED
+            imageTypes: [Onyx.ImageType.ENHANCED, Onyx.ImageType.WSQ]
         }
 navigator.onyx.exec(onyxOptions, onyxSuccess, onyxError);
+
+// TypeScript
+private onyxSuccess(result) {
+    var self = this;
+    console.log("successCallback(): " + JSON.stringify(result));
+    console.log("action: " + result.action);
+    switch (result.action) {
+        case Onyx.Action.IMAGE:
+            if (result.hasOwnProperty("images")) {
+                var images:any = result.images;
+                var preprocessedImageUri:string;
+                var rawImageUri:string;
+                var enhancedImageUri:string;
+
+                if (images.hasOwnProperty(Onyx.ImageType.RAW)) {
+                    console.log("images contains raw image URI");
+                    rawImageUri = images[Onyx.ImageType.RAW];
+                }
+                if (images.hasOwnProperty(Onyx.ImageType.PREPROCESSED)) {
+                    console.log("images contains preprocessed image URI");
+                    preprocessedImageUri = images[Onyx.ImageType.PREPROCESSED];
+                }
+                if (images.hasOwnProperty(Onyx.ImageType.ENHANCED)) {
+                    console.log("images contains enhanced image URI");
+                    enhancedImageUri = images[Onyx.ImageType.ENHANCED];
+                }
+                if (images.hasOwnProperty(Onyx.ImageType.WSQ)) {
+                    console.log("images contains WSQ image");
+                    var wsqImage:any = images[Onyx.ImageType.WSQ];
+                    if (wsqImage) {
+                        console.log("wsqImageNfiqScore: " + wsqImage.nfiqScore);
+                        if (wsqImage.nfiqScore > 0 && wsqImage.nfiqScore < 5) {
+                            // Do something with the WSQ image
+                        } else {
+                            // Show dialog indicating "Poor Image Quality"
+                        }
+                    }
+                }
+                Session.set("imageUri", imageUri);
+            }
+            break;
+    }
+}
 ```
