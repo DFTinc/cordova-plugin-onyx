@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-onyx"
-        version="0.2.0">
+        version="0.2.1">
     <name>Onyx</name>
     <description>Cordova plugin to use Onyx</description>
     <license>Apache 2.0</license>
@@ -77,9 +77,9 @@
         <framework src="CoreMedia.framework" />
         <framework src="AssetsLibrary.framework" />
         <framework src="libc++.tbd" />
-        <framework src="src/ios/Frameworks/OnyxKit.framework" custom="true" />
-        <framework src="src/ios/Frameworks/onyx-core.framework" custom="true" />
-        <framework src="src/ios/Frameworks/opencv2.framework" custom="true" />
+        <framework src="src/ios/Frameworks/OnyxKit.framework" custom="true" embed="true" />
+        <framework src="src/ios/Frameworks/onyx-core.framework" custom="true" embed="true" />
+        <framework src="src/ios/Frameworks/opencv2.framework" custom="true" embed="true" />
         <resource-file src="res/ios/Resources/black-background.jpg"/>
         <resource-file src="res/ios/Resources/blue-background.jpg"/>
         <resource-file src="res/ios/Resources/hand.png"/>
