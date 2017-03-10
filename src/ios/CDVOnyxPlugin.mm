@@ -154,7 +154,7 @@ NSString * const ONYX_IMAGE_TYPE_WSQ = @"wsq";
         NSString* rawImageUri = @"";
         NSString* preprocessedImageUri = @"";
         NSString* enhancedImageUri = @"";
-        NSMutableDictionary* wsqJSON;
+        NSMutableDictionary* wsqJSON = [[NSMutableDictionary alloc] init];
 
         // Get results from Onyx
         if ([_OnyxImageTypes containsObject:ONYX_IMAGE_TYPE_RAW]) {
