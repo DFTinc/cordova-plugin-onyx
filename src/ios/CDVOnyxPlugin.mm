@@ -27,7 +27,6 @@ NSString * const ONYX_IMAGE_TYPE_WSQ = @"wsq";
     _callbackId = command.callbackId;
     NSDictionary* args = [command.arguments objectAtIndex:0];
     _OnyxAction = [args objectForKey:@"action"];
-    _OnyxImageTypes = nil;
     _OnyxImageTypes = [args objectForKey:@"imageTypes"];
     if (_OnyxImageTypes == nil) {
         _OnyxImageTypes =  [[NSMutableArray alloc]init];
