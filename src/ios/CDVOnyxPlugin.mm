@@ -137,7 +137,7 @@ NSString * const ONYX_IMAGE_TYPE_WSQ = @"wsq";
     NSData* fingerprintTemplate = [NSData dataWithData:fingerprint.fingerprintTemplate];
 
     // Prepare variables for response values
-    NSMutableDictionary* imagesJSON;
+    NSMutableDictionary* imagesJSON = [[NSMutableDictionary alloc] init];
     NSString* fptBase64EncodedString = @"";
     BOOL isVerified = NO;
     float nfiqScore = 0;
