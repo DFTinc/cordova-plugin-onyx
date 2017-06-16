@@ -5,9 +5,11 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaInterface;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -16,12 +18,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-
 
 public class OnyxPlugin extends CordovaPlugin {
 
     public static final String TAG = "OnyxPlugin";
+    private static final int PERMISSIONS_REQUEST_STORAGE = 346437;
+
     public static String mPackageName;
 
     public static CallbackContext mCallbackContext;
@@ -39,8 +41,10 @@ public class OnyxPlugin extends CordovaPlugin {
     }
     public static PluginAction mPluginAction;
 
+    private Activity mActivity;
     private Context mContext;
     private static String mExecuteAction;
+    private static String mArgsString;
     /**
      * Constructor.
      */
@@ -60,6 +64,7 @@ public class OnyxPlugin extends CordovaPlugin {
         Log.v(TAG, "Init Onyx");
         mPackageName = cordova.getActivity().getApplicationContext().getPackageName();
         mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+        mActivity = cordova.getActivity();
         mContext = cordova.getActivity().getApplicationContext();
     }
 
@@ -97,20 +102,12 @@ public class OnyxPlugin extends CordovaPlugin {
         }
 
         if (null != mPluginAction) {
-
-            cordova.getActivity().runOnUiThread(new Runnable() {
-                public void run() {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("options", arg_object.toString());
-                    Intent onyxIntent = new Intent(mContext, OnyxActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    onyxIntent.putExtra("options", arg_object.toString());
-                    mContext.startActivity(onyxIntent);
-                }
-            });
-            mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-            mPluginResult.setKeepCallback(true);
-            mCallbackContext.sendPluginResult(mPluginResult);
+            mArgsString = arg_object.toString();
+            if (cordova.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                launchOnyx();
+            } else {
+                cordova.requestPermission(this, PERMISSIONS_REQUEST_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
             return true;
         }
         return false;
@@ -139,6 +136,43 @@ public class OnyxPlugin extends CordovaPlugin {
     public static void onError(String errorMessage) {
         mCallbackContext.error(errorMessage);
         mPluginResult = new PluginResult(PluginResult.Status.ERROR);
+        mCallbackContext.sendPluginResult(mPluginResult);
+    }
+
+    @Override
+    public void onRequestPermissionResult(int requestCode, String[] permissions,
+                                          int[] grantResults) throws JSONException {
+        super.onRequestPermissionResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    launchOnyx();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.e(TAG, "Storage permission denied.");
+                    onError("Write external storage permission denied.");
+                }
+                return;
+            }
+        }
+    }
+
+    private void launchOnyx() {
+        mActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                Bundle bundle = new Bundle();
+                bundle.putString("options", mArgsString);
+                Intent onyxIntent = new Intent(mContext, OnyxActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                onyxIntent.putExtra("options", mArgsString);
+                mContext.startActivity(onyxIntent);
+            }
+        });
+        mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+        mPluginResult.setKeepCallback(true);
         mCallbackContext.sendPluginResult(mPluginResult);
     }
 }
