@@ -15,6 +15,6 @@
  * Returns boolean for internet connectivity
  * @auther Matthew Wheatley
  */
-+ (BOOL) checkNetworkStatus;
++ (BOOL) isInternetAvailable;
 
 @end

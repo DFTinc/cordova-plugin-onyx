@@ -7,8 +7,8 @@
 #include <string>
 
 #define API_MAJOR 4
-#define API_MINOR 1
-#define API_PATCH 0
+#define API_MINOR 2
+#define API_PATCH 4
 
 namespace dft
 {

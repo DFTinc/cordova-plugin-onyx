@@ -6,10 +6,9 @@ module.exports = {
     * @enum {string}
     * */
     Action: {
-        ENROLL: "enroll",
-        VERIFY: "verify",
-        TEMPLATE: "template",
-        IMAGE: "image"
+        SETUP: "setup",
+        MATCH: "match",
+        CAPTURE: "capture"
     },
     /*
     * @enum {string}

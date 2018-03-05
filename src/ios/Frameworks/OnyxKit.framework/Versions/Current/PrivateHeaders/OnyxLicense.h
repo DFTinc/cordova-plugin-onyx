@@ -10,16 +10,14 @@
 //#import "NetworkReachability.h"
 #import "NetworkUtil.h"
 
-#import </Users/chatcher/Documents/xcode projects/onyx-onyx-kit-ios/OnyxKit/Licensing/DeviceUID.h>
+#import "DeviceUID.h"
 
 //#include <onyx-core/License.h>
 
 @interface OnyxLicense : NSObject {
     NSString *baseurl;
-    
     NSString *deviceKey;
     NSString *deviceUDID;
-    
     NSInteger licenseType;
     
     //Type 0 and 1 license
@@ -28,8 +26,7 @@
     //Type 0 license
     NSDate *lastValidateDate;
     
-
-    
+    void (^_validateCompletionHandler)(NSError* error);
 }
 
 @property NSInteger usageCount;
@@ -42,24 +39,18 @@
 
 @property BOOL internetActive;
 @property BOOL hostActive;
+@property (nonatomic) BOOL isValid;
 
 +(OnyxLicense *)sharedInstance;
 
 -(void)setKey:(NSString *)key;
-
 -(void)loadDefaults;
 -(void)saveDefaults;
-
 -(void)increaseUsageCount;
-
--(void)validate;
--(bool)validateWithKey:(NSString *) key;
--(bool)recievedValidateJSON:(NSData *) data;
--(bool)recievedValidateJSONError:(NSError *) error;
--(bool) checkValidity;
-
-//-(BOOL) checkNetworkStatus;
-
-@property (nonatomic) BOOL isValid;
+-(void)validate:(void(^)(NSError *))handler;
+-(void)validateWithKey:(NSString *) key;
+-(void)recievedValidateJSON:(NSData *) data;
+-(void)recievedValidateJSONError:(NSError *) error;
+-(BOOL)isInternetAvailable;
 
 @end

@@ -5,6 +5,8 @@
 #ifndef FINGERPRINTTEMPLATE_H_
 #define FINGERPRINTTEMPLATE_H_
 
+#include <string>
+
 /// \namespace dft Top-level Diamond Fortress Technologies namespace.
 namespace dft
 {
@@ -68,11 +70,50 @@ public:
 	/// \return true if the FingerprintTemplate is empty, false otherwise.
 	bool isEmpty() const;
 
+	/// This member function returns the NFIQ score associated with the template.
+	/// \return the NFIQ score 1 (best) - 5 (worst). -1 means it is not available.
+	int getNfiqScore() const
+	{
+		return nfiqScore;
+	}
+
+	/// This member function sets the NFIQ score for the template.
+	/// \param nfiqScore a double representing the NFIQ score 1 (best) - 5 (worst).
+	void setNfiqScore(int nfiqScore)
+	{
+		if(nfiqScore > 5.0)
+		{
+			this->nfiqScore = 5.0;
+		}
+		else if(nfiqScore < 1.0)
+		{
+			this->nfiqScore = 1.0;
+		}
+		else
+		{
+			this->nfiqScore = nfiqScore;
+		}
+	}
+
+	/// This member function gets the custom ID specified by the client.
+	/// \return the custom ID string set by the client.
+	const std::string& getCustomId() const {
+		return customId;
+	}
+
+	/// This member function sets the custom ID specified by the client.
+	/// \param customId the custom ID to set on the FingerprintTemplate.
+	void setCustomId(const std::string& customId) {
+		this->customId = customId;
+	}
+
 private:
 	char* data;
 	int size;
 	FingerLocation location;
 	int quality;
+	int nfiqScore;
+	std::string customId;
 };
 
 }

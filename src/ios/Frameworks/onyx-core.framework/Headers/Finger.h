@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 namespace dft
 {
@@ -64,6 +65,17 @@ public:
 	Contour getFingerContour() const
 	{
 		return fingerContour;
+	}
+
+	/// This member function returns the mask of the Finger region.
+	/// \param canvasSize the size of the canvas to draw the contour on.
+	/// \return the mask containing the contour.
+	cv::Mat getFingerMask(const cv::Size& canvasSize) const
+	{
+		cv::Mat mask = cv::Mat::zeros(canvasSize, CV_8UC1);
+		cv::drawContours(mask, ContourVector(1, fingerContour), 0, cv::Scalar(255, 255, 255), CV_FILLED);
+
+		return mask;
 	}
 
 	/// This member function returns the Circle encompassing the finger-tip region.

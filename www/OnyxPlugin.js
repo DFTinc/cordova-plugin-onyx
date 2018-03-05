@@ -12,7 +12,7 @@ Onyx.prototype.exec = function (params, successCallback, errorCallback) {
             params
         ]
     );
-}
+};
 
 Onyx = new Onyx();
 module.exports = Onyx;
