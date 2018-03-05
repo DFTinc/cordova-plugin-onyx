@@ -13,12 +13,17 @@ repositories {
     maven {
         url 'http://nexus.diamondfortress.com/nexus/content/repositories/releases/'
     }
+
     maven {
         url 'http://nexus.diamondfortress.com/nexus/content/repositories/snapshots/'
+    }
+
+    maven {
+        url "https://maven.google.com"
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.dft.android:onyx-enroll-wizard:4.1.22'
+    compile 'com.dft.android:onyx-camera:5.0.1-SNAPSHOT'
 }
