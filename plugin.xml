@@ -58,6 +58,7 @@
 
         <source-file src="src/android/OnyxPlugin.java" target-dir="src/com/dft/cordova/plugin/onyx" />
         <source-file src="src/android/OnyxActivity.java" target-dir="src/com/dft/cordova/plugin/onyx" />
+        <source-file src="src/android/OnyxMatch.java" target-dir="src/com/dft/cordova/plugin/onyx" />
         <source-file src="build-extras.gradle" target-dir="." />
 
     </platform>

@@ -2,7 +2,6 @@ function Onyx() {
 }
 
 Onyx.prototype.exec = function (params, successCallback, errorCallback) {
-    console.log("params: " + JSON.stringify(params));
     cordova.exec(
         successCallback,
         errorCallback,
@@ -12,7 +11,7 @@ Onyx.prototype.exec = function (params, successCallback, errorCallback) {
             params
         ]
     );
-}
+};
 
 Onyx = new Onyx();
 module.exports = Onyx;

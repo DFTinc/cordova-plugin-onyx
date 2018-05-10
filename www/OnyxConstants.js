@@ -9,7 +9,8 @@ module.exports = {
         ENROLL: "enroll",
         VERIFY: "verify",
         TEMPLATE: "template",
-        IMAGE: "image"
+        IMAGE: "image",
+        MATCH: "match"
     },
     /*
     * @enum {string}

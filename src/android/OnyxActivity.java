@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Created by mjwheatley on 4/19/16.
  */
-public class OnyxActivity extends Activity {
+public class OnyxActivity extends Activity implements OnyxMatch.MatchResultCallback {
     private static final String TAG = OnyxActivity.class.getSimpleName();
     public static final int RC_ONYX_ENROLL = 367655;
     public static final int RC_ONYX_IMAGE = 46843;
@@ -128,6 +128,16 @@ public class OnyxActivity extends Activity {
                         finish();
                     }
                     break;
+                case MATCH:
+                    String encodedReference = arg_object.getString("reference");
+                    String encodedProbe = arg_object.getString("probe");
+                    byte[] referenceBytes = Base64.decode(encodedReference, Base64.URL_SAFE | Base64.NO_WRAP);
+                    byte[] probeBytes = Base64.decode(encodedProbe, Base64.URL_SAFE | Base64.NO_WRAP);
+                    FingerprintTemplate reference = new FingerprintTemplate(referenceBytes, 0);
+                    FingerprintTemplate probe = new FingerprintTemplate(probeBytes, 0);
+                    OnyxMatch matchTask = new OnyxMatch(mContext, OnyxActivity.this);
+                    matchTask.execute(reference, probe);
+                    break;
             }
         } catch (JSONException e) {
             String errorMessage = "Error parsing JSON Object: " + e.toString();
@@ -135,6 +145,25 @@ public class OnyxActivity extends Activity {
             OnyxPlugin.onError(errorMessage);
             finish();
         }
+    }
+
+    @Override
+    public void onMatchFinished(boolean match, float score) {
+        JSONObject result = new JSONObject();
+        String errorMessage = null;
+        try {
+            result.put("isVerified", match);
+            result.put("matchScore", score);
+        } catch (JSONException e) {
+            errorMessage = "Failed to set JSON key value pair: " + e.toString();
+        }
+        if (null != errorMessage) {
+            Log.e(TAG, errorMessage);
+            OnyxPlugin.onError(errorMessage);
+        } else {
+            OnyxPlugin.onFinished(Activity.RESULT_OK, result);
+        }
+        finish();
     }
 
     @Override

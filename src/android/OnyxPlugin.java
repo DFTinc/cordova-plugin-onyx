@@ -21,23 +21,25 @@ import org.json.JSONObject;
 
 public class OnyxPlugin extends CordovaPlugin {
 
-    public static final String TAG = "OnyxPlugin";
+    private static final String TAG = "OnyxPlugin";
     private static final int PERMISSIONS_REQUEST_STORAGE = 346437;
 
-    public static String mPackageName;
+    private static String mPackageName;
 
-    public static CallbackContext mCallbackContext;
-    public static PluginResult mPluginResult;
+    private static CallbackContext mCallbackContext;
+    private static PluginResult mPluginResult;
 
-    public static final String PLUGIN_ACTION_ENROLL = "enroll";
-    public static final String PLUGIN_ACTION_VERIFY = "verify";
-    public static final String PLUGIN_ACTION_TEMPLATE = "template";
-    public static final String PLUGIN_ACTION_IMAGE = "image";
+    private static final String PLUGIN_ACTION_ENROLL = "enroll";
+    private static final String PLUGIN_ACTION_VERIFY = "verify";
+    private static final String PLUGIN_ACTION_TEMPLATE = "template";
+    private static final String PLUGIN_ACTION_IMAGE = "image";
+    private static final String PLUGIN_ACTION_MATCH = "match";
     public static enum PluginAction {
         ENROLL,
         VERIFY,
         TEMPLATE,
-        IMAGE
+        IMAGE,
+        MATCH
     }
     public static PluginAction mPluginAction;
 
@@ -99,6 +101,8 @@ public class OnyxPlugin extends CordovaPlugin {
             mPluginAction = PluginAction.TEMPLATE;
         } else if (action.equalsIgnoreCase(PLUGIN_ACTION_IMAGE)) {
             mPluginAction = PluginAction.IMAGE;
+        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_MATCH)) {
+            mPluginAction = PluginAction.MATCH;
         }
 
         if (null != mPluginAction) {
@@ -155,7 +159,6 @@ public class OnyxPlugin extends CordovaPlugin {
                     Log.e(TAG, "Storage permission denied.");
                     onError("Write external storage permission denied.");
                 }
-                return;
             }
         }
     }
