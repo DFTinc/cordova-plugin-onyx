@@ -1,22 +1,32 @@
-/**
- * Created by mjwheatley on 4/21/16.
- */
 module.exports = {
     /*
     * @enum {string}
     * */
-    Action: {
-        SETUP: "setup",
+    ACTION: {
         MATCH: "match",
         CAPTURE: "capture"
     },
     /*
     * @enum {string}
     * */
-    ImageType: {
-        RAW: "raw",
-        PREPROCESSED: "preprocessed",
-        ENHANCED: "enhanced",
-        WSQ: "wsq"
+    FLIP: {
+        HORIZONTAL: "HORIZONTAL",
+        VERTICAL: "VERTICAL",
+        BOTH: "BOTH",
+        NONE: "NONE"
+    },
+    /*
+    * @enum {string}
+    * */
+    LAYOUT_PREFERENCE: {
+        UPPER_THIRD: "UPPER_THIRD",
+        FULL: "FULL"
+    },
+    /*
+   * @enum {string}
+   * */
+    RETICLE_ORIENTATION: {
+        LEFT: "LEFT",
+        RIGHT: "RIGHT"
     }
 };

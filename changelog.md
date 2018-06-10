@@ -5,7 +5,7 @@
     * Changed `OnyxOptions.imageType` to `OnyxOptions.imageTypes`
         * Changed option argument from a single `Onyx.ImageType` to an `Array<Onyx.ImageType>`
     * Changed `OnyxResult.imageUri` to `OnyxResult.images`
-        * `Onyx.Action.IMAGE` will now return a JSON Object
+        * `Onyx.ACTION.IMAGE` will now return a JSON Object
         ```
         {
             "raw": "base64EncodedImageUri",

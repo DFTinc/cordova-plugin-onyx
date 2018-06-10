@@ -42,7 +42,7 @@ Reference the Onyx license when you execute an Onyx action.
 ```
 var onyxOptions = {
     onyxLicense = Meteor.settings.public.onyxLicense;
-    action = Onyx.Action.IMAGE;
+    action = Onyx.ACTION.IMAGE;
 }
 navigator.onyx.exec(onyxOptions, onyxSuccessCallback, onyxErrorCallback);
 ```
@@ -65,7 +65,7 @@ meteor run android-device --settings settings.json
 
 
 * [Onyx](#module_Onyx)
-    * [.Actions](#module_Onyx.Actions) : <code>enum</code>
+    * [.Actions](#module_Onyx.ACTIONs) : <code>enum</code>
 
 ---
 
@@ -119,7 +119,7 @@ Callback function that provides the image data.
 // Show image
 //
 function onyxSuccess(result) {
-    if (result.action === Onyx.Action.IMAGE) {
+    if (result.action === Onyx.ACTION.IMAGE) {
         var image = document.getElementById('myImage');
            image.src = result.imageUri;    
     }
@@ -135,7 +135,7 @@ Optional parameters to customize onyx settings.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | onyxLicense | <code>number</code> | <code>xxxx-xxxx-xxxx-x-x</code> | **Required** Your license key for Onyx. |
-| action | <code>[Action](#module_Onyx.Action)</code> | undefined | **Required** Choose the action for onyx to execute. |
+| action | <code>[Action](#module_Onyx.ACTION)</code> | undefined | **Required** Choose the action for onyx to execute. |
 | imageTypes | <code>Array<[ImageType](#module_Onyx.ImageType)></code> | <code>[[ImageType](#module_Onyx.ImageType).PREPROCESSED]</code> | Array of image types to return as a base64 encoded data URI's. |
 
 ### onyx.OnyxResult : <code>JSON Object</code>
@@ -146,18 +146,18 @@ Results return by Onyx.
 
 | Name | Type | Action | Description |
 | --- | --- | --- | --- |
-| images | <code>JSON Object</code> | <code>[Onyx.Action.IMAGE](#module_Onyx.Action)</code> | JSON Object containing base64 encoded fingerprint JPEG images.  `"data:image/jpeg;base64," + base64EncodedString`. <br><br> Defaults to imageType: `Onyx.ImageType.PREPROCESSED`<br><br> { <br>&nbsp;&nbsp;&nbsp;&nbsp;"raw": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"preprocessed": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"enhanced": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"wsq": { <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bytes": "base64EncodedBytes", <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"nfiqScore": number<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>} |
-| template | <code>string</code> | <code>[Onyx.Action.TEMPLATE](#module_Onyx.Action)</code> <code>[Onyx.Action.ENROLL](#module_Onyx.Action)</code> | Base64 encoded fingerprint template to send to backend server. |
-| nfiqScore | <code>number</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The result score of a verify action. |
-| isVerified | <code>boolean</code> | <code>[Onyx.Action.VERIFY](#module_Onyx.Action)</code> | The fingerprint match result. |
+| images | <code>JSON Object</code> | <code>[Onyx.ACTION.IMAGE](#module_Onyx.ACTION)</code> | JSON Object containing base64 encoded fingerprint JPEG images.  `"data:image/jpeg;base64," + base64EncodedString`. <br><br> Defaults to imageType: `Onyx.ImageType.PREPROCESSED`<br><br> { <br>&nbsp;&nbsp;&nbsp;&nbsp;"raw": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"preprocessed": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"enhanced": "base64EncodedImageUri",<br>&nbsp;&nbsp;&nbsp;&nbsp;"wsq": { <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"bytes": "base64EncodedBytes", <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"nfiqScore": number<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>} |
+| template | <code>string</code> | <code>[Onyx.ACTION.TEMPLATE](#module_Onyx.ACTION)</code> <code>[Onyx.ACTION.ENROLL](#module_Onyx.ACTION)</code> | Base64 encoded fingerprint template to send to backend server. |
+| nfiqScore | <code>number</code> | <code>[Onyx.ACTION.VERIFY](#module_Onyx.ACTION)</code> | The result score of a verify action. |
+| isVerified | <code>boolean</code> | <code>[Onyx.ACTION.VERIFY](#module_Onyx.ACTION)</code> | The fingerprint match result. |
 
 
 ---
 
 <a name="module_Onyx"></a>
 ## Onyx
-<a name="module_Onyx.Action"></a>
-### Onyx.Action : <code>JSON Object</code>
+<a name="module_Onyx.ACTION"></a>
+### Onyx.ACTION : <code>JSON Object</code>
 **Kind**: static constants for actions of <code>[Onyx](#module_Onyx)</code>  
 **Properties**
 
@@ -185,7 +185,7 @@ Results return by Onyx.
 ```
 var onyxOptions = {
             onyxLicense: MY_ONYX_LICENSE,
-            action: Onyx.Action.IMAGE, 
+            action: Onyx.ACTION.IMAGE,
             imageTypes: [Onyx.ImageType.ENHANCED, Onyx.ImageType.WSQ]
         }
 navigator.onyx.exec(onyxOptions, onyxSuccess, onyxError);
@@ -196,7 +196,7 @@ private onyxSuccess(result) {
     console.log("successCallback(): " + JSON.stringify(result));
     console.log("action: " + result.action);
     switch (result.action) {
-        case Onyx.Action.IMAGE:
+        case Onyx.ACTION.IMAGE:
             if (result.hasOwnProperty("images")) {
                 var images:any = result.images;
                 var preprocessedImageUri:string;

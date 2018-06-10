@@ -30,6 +30,7 @@
         </config-file>
         <source-file src="src/android/OnyxPlugin.java" target-dir="src/com/dft/cordova/plugin/onyx" />
         <source-file src="src/android/OnyxActivity.java" target-dir="src/com/dft/cordova/plugin/onyx" />
+        <source-file src="src/android/OnyxMatch.java" target-dir="src/com/dft/cordova/plugin/onyx"/>
         <source-file src="build-extras.gradle" target-dir="." />
     </platform>
 
@@ -48,24 +49,6 @@
         <framework src="CoreMedia.framework" />
         <framework src="AssetsLibrary.framework" />
         <framework src="libc++.tbd" />
-        <!--<framework src="src/ios/Frameworks/OnyxKit.framework" custom="true" embed="true" />-->
-        <!--<framework src="src/ios/Frameworks/onyx-core.framework" custom="true" embed="true" />-->
-        <!--<framework src="src/ios/Frameworks/opencv2.framework" custom="true" embed="true" />-->
-        <resource-file src="res/ios/Resources/black-background.jpg"/>
-        <resource-file src="res/ios/Resources/blue-background.jpg"/>
-        <resource-file src="res/ios/Resources/hand.png"/>
-        <resource-file src="res/ios/Resources/leftInfo.png"/>
-        <resource-file src="res/ios/Resources/page1.png"/>
-        <resource-file src="res/ios/Resources/page2.png"/>
-        <resource-file src="res/ios/Resources/page3.png"/>
-        <resource-file src="res/ios/Resources/page4.png"/>
-        <resource-file src="res/ios/Resources/page5.png"/>
-        <resource-file src="res/ios/Resources/rightInfo.png"/>
-        <resource-file src="res/ios/Resources/sidebar.png"/>
-        <resource-file src="res/ios/Resources/white_onyx_embossed.png"/>
-        <resource-file src="res/ios/Resources/wholeHand.png"/>
-
-        <!--<hook type="after_build" src="hooks/embedframework/addEmbedded.js" />-->
     </platform>
 
 </plugin>
