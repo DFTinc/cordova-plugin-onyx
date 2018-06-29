@@ -1,15 +1,13 @@
 #import <Cordova/CDVPlugin.h>
-#import <OnyxKit/OnyxViewController.h>
-#import <OnyxKit/ProcessedFingerprint.h>
-#import <OnyxKit/OnyxMatch.h>
-#import <OnyxKit/NetworkUtil.h>
+#import <OnyxKit/OnyxConfigurationBuilder.h>
+#import <OnyxKit/Onyx.h>
 
-@interface CDVOnyxPlugin :CDVPlugin <UINavigationControllerDelegate, UIAlertViewDelegate, OnyxViewControllerDelegate> {
+@interface CDVOnyxPlugin :CDVPlugin <UINavigationControllerDelegate> {
 }
-
-- (void) image:(CDVInvokedUrlCommand*)command;
-- (void) enroll:(CDVInvokedUrlCommand*)command;
-- (void) verify:(CDVInvokedUrlCommand*)command;
-- (void) template:(CDVInvokedUrlCommand*)command;
-
+@property OnyxResult* onyxResult;
+- (void) match:(CDVInvokedUrlCommand*)command;
+- (void) capture:(CDVInvokedUrlCommand*)command;
+- (void(^)(OnyxResult* onyxResult))onyxSuccessCallback;
+- (void(^)(OnyxError* onyxError)) onyxErrorCallback;
+- (void(^)(Onyx* configuredOnyx))onyxCallback;
 @end

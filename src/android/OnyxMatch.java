@@ -23,7 +23,6 @@ public class OnyxMatch extends AsyncTask<FingerprintTemplate, Void, Float> {
     @Override
     protected Float doInBackground(FingerprintTemplate... templates) {
         try {
-            Mat probe = new Mat();
             return core.verify(templates[0], templates[1]);
         } catch (Exception e) {
             mException = e;
@@ -52,7 +51,6 @@ public class OnyxMatch extends AsyncTask<FingerprintTemplate, Void, Float> {
                 mMatchResultCallback.onMatchFinished(true, score);
             }
         }
-        Toast.makeText(mContext, "Match Score: " + score, Toast.LENGTH_SHORT).show();
     }
 
     public interface MatchResultCallback {
