@@ -139,7 +139,7 @@ Optional parameters to customize onyx configuration.
 | Name | Type | Default | Platform | Description |
 | --- | --- | --- | --- | --- |
 | onyxLicense | <code>string</code> | <code>xxxx-xxxx-xxxx-x-x</code> | Both |  **Required**<br> Your license key for Onyx. |
-| action | <code>[Action](#module_Onyx.ACTION)</code> | undefined | Both | **Required**<br> Choose the action for onyx to execute. |
+| action | <code>[Action](#module_Onyx.ACTION)</code> | <code>undefined</code> | Both | **Required**<br> Choose the action for onyx to execute. |
 | returnRawImage | <code>boolean</code> | <code>false</code> | Both | Indicates if the raw fingerprint image will be returned. | 
 | returnGrayRawImage | <code>boolean</code> | <code>false</code> | iOS | Indicates if the gray raw fingerprint image will be returned.| 
 | returnProcessedImage | <code>boolean</code> | <code>false</code> | Both | Indicates if the processed fingerprint image will be returned. | 
@@ -150,7 +150,7 @@ Optional parameters to customize onyx configuration.
 | returnGrayRawWSQ | <code>boolean</code> | <code>false</code> | iOS | Indicates if the base64 encoded gray raw WSQ fingerprint will be returned. |
 | shouldSegment | <code>boolean</code> | <code>false</code> | Android | Indicates if the fingerprint image should be segmented to remove background noise from the fingerprint image.| 
 | shouldConvertToISOTemplate | <code>boolean</code> | <code>false</code> | Android | Indicates that the fingerprint template should be returned in ISO format.|
-| imageRotation | <code>number</code> | 0 | Android | Integer value of 90 degrees (0, 90, 180, or 270). |
+| imageRotation | <code>number</code> | `0` | Android | Integer value of 90 degrees (0, 90, 180, or 270). |
 | wholeFingerCrop | <code>boolean</code> | <code>false</code> | Android | Will crop less of the image to return more of the fingerprint. | 
 | useManualCapture | <code>boolean</code> | <code>false</code> | Android | Disables the auto-capture feature.  User must tap the screen to trigger capture.| 
 | useOnyxLive | <code>boolean</code> | <code>false</code> | Both | Will send the raw fingerprint image to the Onyx Liveness service to receive a liveness confidence score.| 
@@ -158,12 +158,12 @@ Optional parameters to customize onyx configuration.
 | showLoadingSpinner | <code>boolean</code> | <code>false</code> | Both | Shows a loading spinner while Onyx is doing asynchronous requests before the capture screen is presented.| 
 | shouldInvert | <code>boolean</code> | <code>true</code> | iOS | Inverts the colors (bitwise) of the processed fingerprint images to make the valleys and ridges the same color as a touch based sensor. | 
 | reticleOrientation | <code>string</code> | <code>[RETICLE_ORIENTATION.LEFT](#module_Onyx.RETICLE_ORIENTATION)</code> | Both | Sets the direction of the finger reticle on the capture screen. |
-| reticleAngle | <code>number</code> | 0 | Android | Requires [LAYOUT_PREFERENCE.FULL](#module_Onyx.LAYOUT_PREFERENCE)<br>Integer value.<br>Adjusts the angle of the finger reticle. |
-| reticleScale | <code>number</code> | 1.0 | Android | Float value from 0 to 1.<br>Adjusts the scale of the finger reticle. |
-| backgroundColorHexString | <code>string</code> | "#3698D3" | Both | Hex color value for the background color of the bottom two-thirds of the capture screen.|
+| reticleAngle | <code>number</code> | `0` | Android | Requires [LAYOUT_PREFERENCE.FULL](#module_Onyx.LAYOUT_PREFERENCE)<br>Integer value.<br>Adjusts the angle of the finger reticle. |
+| reticleScale | <code>number</code> | `1.0` | Android | Float value from 0 to 1.<br>Adjusts the scale of the finger reticle. |
+| backgroundColorHexString | <code>string</code> | `#3698D3` | Both | Hex color value for the background color of the bottom two-thirds of the capture screen.|
 | showBackButton | <code>boolean</code> | <code>false</code> | Android | Displays a back button on the capture screen.| 
-| cropFactor | <code>float</code> | <strong>Android</strong> 0.8<br><strong>iOS</strong> 0.9| Both | Float value from 0 to 1.<br> Adjusts the crop factor for the fingerprint image.|
-| cropSize | <code>JSON Object</code><br><br>{<br>width: <code>number</code>,<br> height: <code>number</code><br>} | <strong>Android</strong><br>width: 512<br>height: 300<br><br><strong>iOS</strong><br>width: 600<br>height: 960 | Both | Sets the dimensions of the fingerprint image. |
+| cropFactor | <code>float</code> | <strong>Android</strong> `0.8`<br><strong>iOS</strong> `0.9`| Both | Float value from 0 to 1.<br> Adjusts the crop factor for the fingerprint image.|
+| cropSize | <code>JSON Object</code><br><br>{<br>width: <code>number</code>,<br> height: <code>number</code><br>} | <strong>Android</strong><br>width: `512`<br>height: `300`<br><br><strong>iOS</strong><br>width: `600`<br>height: `960` | Both | Sets the dimensions of the fingerprint image. |
 | layoutPreference | <code>string</code> | <code>[LAYOUT_PREFERENCE.UPPER_THIRD](#module_Onyx.LAYOUT_PREFERENCE)</code> | Both | Sets the display of the camera view.|
 | flip | <code>string</code> | <code>[FLIP.HORIZONTAL](#module_Onyx.FLIP)</code> | Both | Flips the orientation of the fingerprint image. |
 | probe | <code>string</code> | <code>undefined</code> | Both | **Required for `Onyx.ACTION.MATCH`**<br>Base64 encoded fingerprint template to match against a reference fingerprint template. |
