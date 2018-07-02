@@ -1,6 +1,6 @@
 #import "CDVOnyxPlugin.h"
 #import <Cordova/CDV.h>
-#import <OnyxKit/OnyxMatch.h>
+#import <OnyxCamera/OnyxMatch.h>
 
 @interface CDVOnyxPlugin ()
 

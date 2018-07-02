@@ -1,6 +1,6 @@
 #import <Cordova/CDVPlugin.h>
-#import <OnyxKit/OnyxConfigurationBuilder.h>
-#import <OnyxKit/Onyx.h>
+#import <OnyxCamera/OnyxConfigurationBuilder.h>
+#import <OnyxCamera/Onyx.h>
 
 @interface CDVOnyxPlugin :CDVPlugin <UINavigationControllerDelegate> {
 }
