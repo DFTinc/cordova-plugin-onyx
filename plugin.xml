@@ -47,10 +47,7 @@
 
         <header-file src="src/ios/CDVOnyxPlugin.h"/>
         <source-file src="src/ios/CDVOnyxPlugin.mm"/>
-        <framework src="AVFoundation.framework" />
-        <framework src="CoreMedia.framework" />
-        <framework src="AssetsLibrary.framework" />
-        <framework src="libc++.tbd" />
+        <framework src="OnyxCamera" type="podspec" spec="~> 5.0.0" />
     </platform>
 
 </plugin>
