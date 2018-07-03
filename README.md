@@ -19,11 +19,28 @@ Contact [Diamond Fortress Technologies, Inc.](http://www.diamondfortress.com) an
 This requires cordova 5.0+
 
 ```
-    cordova plugin add cordova-plugin-onyx
+cordova plugin add cordova-plugin-onyx
 ```
 ```
-    meteor add cordova:cordova-plugin-onyx
+meteor add cordova:cordova-plugin-onyx@5.0.0
 ```
+
+### Additonal steps for iOS
+Run the app for a device to build the app.
+From your meteor project directory
+```
+meteor run ios-device
+```
+ **Install the CocoaPod dependencies**
+ Open a terminal and navigate to the folder containing the project that was just created.
+ From your meteor project directory
+ ```
+ cd .meteor/local/cordova-build/platforms/ios/
+ pod install
+ ```
+
+Then open the project `.xcworkspace` file to run the app on an iOS device from XCode.
+
 
 ## Quick Use Example
 ####MeteorJS applications
@@ -59,13 +76,20 @@ meteor run android-device --settings settings.json
 
 * [onyx](#module_onyx)
     * [.exec(options, successCallback, errorCallback)](#module_onyx.exec)
-    * [.onError](#module_onyx.onError) : <code>function</code>
-    * [.onSuccess](#module_onyx.onSuccess) : <code>function</code>
-    * [.OnyxOptions](#module_onyx.OnyxOptions) : <code>Object</code>
-
+    * [.onError](#module_onyx.onError) : <code>Function</code>
+    * [.onSuccess](#module_onyx.onSuccess) : <code>Function</code>
+    
 
 * [Onyx](#module_Onyx)
-    * [.Action](#module_Onyx.ACTION) : <code>enum</code>
+    * [.OnyxOptions](#module_Onyx.OnyxOptions) : <code>JSON Object</code>
+    * [.ACTION](#module_Onyx.ACTION) : <code>Enum</code>
+    * [.RETICLE_ORIENTATION](#module_Onyx.RETICLE_ORIENTATION) : <code>Enum</code>
+    * [.LAYOUT_PREFERENCE](#module_Onyx.LAYOUT_PREFERENCE) : <code>Enum</code>
+    * [.FLIP](#module_Onyx.FLIP) : <code>Enum</code>
+    * [.OnyxResult](#module_Onyx.OnyxResult) : <code>JSON Object</code>
+    * [.CaptureMetrics](#module_Onyx.CaptureMetrics) : <code>JSON Object</code>
+    * [.NfiqMetrics](#module_Onyx.NfiqMetrics) : <code>JSON Object</code>
+    * [.FillProperties](#module_Onyx.FillProperties) : <code>JSON Object</code>
 
 ---
 
@@ -130,7 +154,7 @@ function onyxSuccess(onyxResult) {
 ## Onyx
 
 <a name="module_Onyx.OnyxOptions"></a>
-### Onyx.OnyxOptions : <code>Object</code>
+### Onyx.OnyxOptions : <code>JSON Object</code>
 Optional parameters to customize onyx configuration.
 
 **Kind**: static typedef of <code>[onyx](#module_onyx)</code>  
@@ -207,7 +231,7 @@ export interface IOnyxConfiguration {
 ```
 
 <a name="module_Onyx.ACTION"></a>
-### Onyx.ACTION : <code>JSON Object</code>
+### Onyx.ACTION : <code>Enum</code>
 **Kind**: static constants for actions of <code>[Onyx](#module_Onyx)</code>  
 **Properties**
 
@@ -218,7 +242,7 @@ export interface IOnyxConfiguration {
 
 
 <a name="module_Onyx.RETICLE_ORIENTATION"></a>
-### Onyx.RETICLE_ORIENTATION : <code>JSON Object</code>
+### Onyx.RETICLE_ORIENTATION : <code>Enum</code>
 **Kind**: static constants for reticleOrientation of <code>[OnyxOptions](#module_Onyx.OnyxOptions)</code>  
 **Properties**
 
@@ -229,7 +253,7 @@ export interface IOnyxConfiguration {
 
 
 <a name="module_Onyx.LAYOUT_PREFERENCE"></a>
-### Onyx.LAYOUT_PREFERENCE : <code>JSON Object</code>
+### Onyx.LAYOUT_PREFERENCE : <code>Enum</code>
 **Kind**: static constants for layoutPreference of <code>[OnyxOptions](#module_Onyx.OnyxOptions)</code>  
 **Properties**
 
@@ -240,7 +264,7 @@ export interface IOnyxConfiguration {
 
 
 <a name="module_Onyx.FLIP"></a>
-### Onyx.FLIP : <code>JSON Object</code>
+### Onyx.FLIP : <code>Enum</code>
 **Kind**: static constants for flip of <code>[OnyxOptions](#module_Onyx.OnyxOptions)</code>  
 **Properties**
 
