@@ -315,7 +315,7 @@ export interface IOnyxResult {
 | livenessConfidence | <code>number</code> | Float value 0 - 1 indicating the percent confidence that the image captured was a real live fingerprint. Greater than 0.5 (50%) would suggest the finger was more real than fake.  Less than 0.5 (50%) would suggest the finger was more fake than real. |
 | focusQuality | <code>number</code> |  |
 | distanceToCenter | <code>number</code> |  |
-| fillProperties | <code>[Onyx.FillProperties](#module_Onyx.FillProperties)</code> | JSON Object containg the fill properties of `heightRatio` and `overlapRatio`. |
+| fillProperties | <code>[Onyx.FillProperties](#module_Onyx.FillProperties)</code> | **Android only**<br>JSON Object containg the fill properties of `heightRatio` and `overlapRatio`. |
 
 <a name="module_Onyx.NfiqMetrics"></a>
 ### Onyx.NfiqMetrics : <code>JSON Object</code>
@@ -325,7 +325,7 @@ export interface IOnyxResult {
 | Name | Type | Description |
 | --- | --- | --- |
 | nfiqScore | <code>number</code> | NIST Fingerprint Image Quality. Integer value 1 - 5.  A value of 5 being the lowest quality fingerprint image and should not be used for matching or saved as a biometric enrollment. |
-| mlpScore | <code>number</code> | Multi-Layer Perceptrons (MLP) Score |
+| mlpScore | <code>number</code> | Multi-Layer Perceptrons (MLP) Score is a float value from 0 - 1 describing the percent certainty of the NFIQ Score.|
 
 <a name="module_Onyx.FillProperties"></a>
 ### Onyx.FillProperties : <code>JSON Object</code>
