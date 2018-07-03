@@ -34,8 +34,10 @@ meteor run ios-device
  **Install the CocoaPod dependencies**
  Open a terminal and navigate to the folder containing the project that was just created.
  From your meteor project directory
+ 
  ```
  cd .meteor/local/cordova-build/platforms/ios/
+ 
  pod install
  ```
 
@@ -43,7 +45,7 @@ Then open the project `.xcworkspace` file to run the app on an iOS device from X
 
 
 ## Quick Use Example
-####MeteorJS applications
+#### MeteorJS applications
 Create a settings.json file to load at runtime.
 
 ```
