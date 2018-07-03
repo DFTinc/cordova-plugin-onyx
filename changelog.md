@@ -1,3 +1,16 @@
+# Version 5.0.0
+## What's New
+* Updated to Onyx version 5.0
+#### Breaking Changes
+* Using the new OnyxCamera CocoaPod for iOS.
+* Refactored `Onyx.Action` to `Onyx.ACTION`.
+    * Removed actions `ENROLL`, `VERIFY`, `TEMPLATE`, and `IMAGE` and replaced with a single `CAPTURE` action.
+    * Added on-device matching through use of the `MATCH` action.
+* Brand new `OnyxOptions` for configuring the Onyx capture screen.
+* Brand new `OnyxResult` object returned via `onyx.onSuccess` callback.
+
+
+
 # Version 0.2.0
 ## What's New
 
