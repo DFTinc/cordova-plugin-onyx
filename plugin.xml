@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-onyx"
-        version="0.2.1">
+        version="5.0.0">
     <name>Onyx</name>
     <description>Cordova plugin to use Onyx</description>
     <license>Apache 2.0</license>
@@ -25,42 +25,13 @@
                 <param name="android-package" value="com.dft.cordova.plugin.onyx.OnyxPlugin"/>
             </feature>
         </config-file>
-        <config-file target="AndroidManifest.xml" parent="/*">
-            <uses-permission android:name="android.permission.INTERNET"/>
-            <uses-permission android:name="android.permission.CAMERA" />
-            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-            <uses-feature android:name="android.hardware.camera" />
-            <uses-feature android:name="android.hardware.camera.autofocus" />
-            <uses-feature android:name="android.hardware.flash" />
-        </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <activity android:name="com.dft.cordova.plugin.onyx.OnyxActivity" />
-            <activity
-                    android:name="com.dft.onyx.verify.SelfVerifyActivity"
-                    android:screenOrientation="portrait" >
-            </activity>
-            <activity android:name="com.dft.onyx.enroll.ui.TipsActivity"
-                      android:screenOrientation="portrait" >
-            </activity>
-            <activity
-                    android:name="com.dft.onyx.wizardroid.enrollwizard.SelfEnrollWizard"
-                    android:screenOrientation="portrait" >
-            </activity>
-            <activity
-                    android:name="com.dft.onyx.guide.OnyxGuideActivity"
-                    android:screenOrientation="portrait" >
-            </activity>
-            <activity
-                    android:name="com.dft.onyx.fingerwizard.FingerWizard"
-                    android:screenOrientation="portrait" >
-            </activity>
         </config-file>
-
         <source-file src="src/android/OnyxPlugin.java" target-dir="src/com/dft/cordova/plugin/onyx" />
         <source-file src="src/android/OnyxActivity.java" target-dir="src/com/dft/cordova/plugin/onyx" />
-        <source-file src="src/android/OnyxMatch.java" target-dir="src/com/dft/cordova/plugin/onyx" />
+        <source-file src="src/android/OnyxMatch.java" target-dir="src/com/dft/cordova/plugin/onyx"/>
         <source-file src="build-extras.gradle" target-dir="." />
-
     </platform>
 
     <!-- iOS -->
@@ -69,32 +40,14 @@
             <feature name="OnyxPlugin">
                 <param name="ios-package" value="CDVOnyxPlugin"/>
             </feature>
-
+        </config-file>
+        <config-file platform="ios" target="*-Info.plist" parent="NSCameraUsageDescription">
+            <string>This application will use your phone's camera to take capture an image of your fingerprint.</string>
         </config-file>
 
         <header-file src="src/ios/CDVOnyxPlugin.h"/>
         <source-file src="src/ios/CDVOnyxPlugin.mm"/>
-        <framework src="AVFoundation.framework" />
-        <framework src="CoreMedia.framework" />
-        <framework src="AssetsLibrary.framework" />
-        <framework src="libc++.tbd" />
-        <framework src="src/ios/Frameworks/OnyxKit.framework" custom="true" embed="true" />
-        <framework src="src/ios/Frameworks/onyx-core.framework" custom="true" embed="true" />
-        <framework src="src/ios/Frameworks/opencv2.framework" custom="true" embed="true" />
-        <resource-file src="res/ios/Resources/black-background.jpg"/>
-        <resource-file src="res/ios/Resources/blue-background.jpg"/>
-        <resource-file src="res/ios/Resources/hand.png"/>
-        <resource-file src="res/ios/Resources/leftInfo.png"/>
-        <resource-file src="res/ios/Resources/page1.png"/>
-        <resource-file src="res/ios/Resources/page2.png"/>
-        <resource-file src="res/ios/Resources/page3.png"/>
-        <resource-file src="res/ios/Resources/page4.png"/>
-        <resource-file src="res/ios/Resources/page5.png"/>
-        <resource-file src="res/ios/Resources/rightInfo.png"/>
-        <resource-file src="res/ios/Resources/sidebar.png"/>
-        <resource-file src="res/ios/Resources/white_onyx_embossed.png"/>
-        <resource-file src="res/ios/Resources/wholeHand.png"/>
-
+        <framework src="OnyxCamera" type="podspec" spec="~> 5.0.0" />
     </platform>
 
 </plugin>

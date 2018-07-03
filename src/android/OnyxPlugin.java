@@ -5,12 +5,10 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaInterface;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 
 import org.apache.cordova.PluginResult;
@@ -18,35 +16,82 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.dft.onyx.FingerprintTemplate;
 
-public class OnyxPlugin extends CordovaPlugin {
+public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCallback {
 
-    private static final String TAG = "OnyxPlugin";
-    private static final int PERMISSIONS_REQUEST_STORAGE = 346437;
+    public static final String TAG = "OnyxPlugin";
 
-    private static String mPackageName;
+    public String mPackageName;
 
-    private static CallbackContext mCallbackContext;
-    private static PluginResult mPluginResult;
-
-    private static final String PLUGIN_ACTION_ENROLL = "enroll";
-    private static final String PLUGIN_ACTION_VERIFY = "verify";
-    private static final String PLUGIN_ACTION_TEMPLATE = "template";
-    private static final String PLUGIN_ACTION_IMAGE = "image";
-    private static final String PLUGIN_ACTION_MATCH = "match";
-    public static enum PluginAction {
-        ENROLL,
-        VERIFY,
-        TEMPLATE,
-        IMAGE,
-        MATCH
-    }
-    public static PluginAction mPluginAction;
+    public static CallbackContext mCallbackContext;
+    public static PluginResult mPluginResult;
 
     private Activity mActivity;
     private Context mContext;
+    public static JSONObject mArgs;
     private static String mExecuteAction;
-    private static String mArgsString;
+
+    public static PluginAction mPluginAction;
+    public static enum PluginAction {
+        CAPTURE("capture"),
+        MATCH("match");
+        private final String key;
+
+        PluginAction(String key){
+            this.key = key;
+        }
+
+        public String getKey(){
+            return this.key;
+        }
+    }
+
+    public enum OnyxConfig {
+        ONYX_LICENSE("onyxLicense"),
+        RETURN_RAW_IMAGE("returnRawImage"),
+        RETURN_PROCESSED_IMAGE("returnProcessedImage"),
+        RETURN_ENHANCED_IMAGE("returnEnhancedImage"),
+        RETURN_WSQ("returnWSQ"),
+        RETURN_FINGERPRINT_TEMPLATE("returnFingerprintTemplate"),
+        SHOULD_SEGMENT("shouldSegment"),
+        SHOULD_CONVERT_TO_ISO_TEMPLATE("shouldConvertToISOTemplate"),
+        IMAGE_ROTATION("imageRotation"),
+        WHOLE_FINGER_CROP("wholeFingerCrop"),
+        CROP_SIZE("cropSize"),
+        CROP_SIZE_WIDTH("width"),
+        CROP_SIZE_HEIGHT("height"),
+        CROP_FACTOR("cropFactor"),
+        SHOW_LOADING_SPINNER("showLoadingSpinner"),
+        LAYOUT_PREFERENCE("layoutPreference"),
+        LAYOUT_PREFERENCE_UPPER_THIRD("UPPER_THIRD"),
+        LAYOUT_PREFERENCE_FULL("FULL"),
+        USE_MANUAL_CAPTURE("useManualCapture"),
+        USE_ONYX_LIVE("useOnyxLive"),
+        USE_FLASH("useFlash"),
+        RETICLE_ORIENTATION("reticleOrientation"),
+        RETICLE_ORIENTATION_LEFT("LEFT"),
+        RETICLE_ORIENTATION_RIGHT("RIGHT"),
+        RETICLE_ANGLE("reticleAngle"),
+        RETICLE_SCALE("reticleScale"),
+        BACKGROUND_COLOR_HEX_STRING("backgroundColorHexString"),
+        SHOW_BACK_BUTTON("showBackButton"),
+        FLIP("flip"),
+        FLIP_HORIZONTAL("HORIZONTAL"),
+        FLIP_VERTICAL("VERTICAL"),
+        FLIP_BOTH("BOTH"),
+        FLIP_NONE("NONE");
+        private final String key;
+
+        OnyxConfig(String key){
+            this.key = key;
+        }
+
+        public String getKey(){
+            return this.key;
+        }
+    }
+
     /**
      * Constructor.
      */
@@ -85,36 +130,33 @@ public class OnyxPlugin extends CordovaPlugin {
         Log.v(TAG, "OnyxPlugin action: " + action);
         mExecuteAction = action;
 
-        final JSONObject arg_object = args.getJSONObject(0);
-        if (!arg_object.has("onyxLicense") || !arg_object.has("action")) {
+        mArgs = args.getJSONObject(0);
+        if (!mArgs.has("onyxLicense") || !mArgs.has("action")) {
             mPluginResult = new PluginResult(PluginResult.Status.ERROR);
             mCallbackContext.error("Missing required parameters");
             mCallbackContext.sendPluginResult(mPluginResult);
             return true;
         }
 
-        if (action.equalsIgnoreCase(PLUGIN_ACTION_ENROLL)) {
-            mPluginAction = PluginAction.ENROLL;
-        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_VERIFY)) {
-            mPluginAction = PluginAction.VERIFY;
-        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_TEMPLATE)) {
-            mPluginAction = PluginAction.TEMPLATE;
-        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_IMAGE)) {
-            mPluginAction = PluginAction.IMAGE;
-        } else if (action.equalsIgnoreCase(PLUGIN_ACTION_MATCH)) {
+        if (action.equalsIgnoreCase(PluginAction.MATCH.getKey())) {
             mPluginAction = PluginAction.MATCH;
+        } else if (action.equalsIgnoreCase(PluginAction.CAPTURE.getKey())) {
+            mPluginAction = PluginAction.CAPTURE;
         }
 
         if (null != mPluginAction) {
-            mArgsString = arg_object.toString();
-            if (cordova.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                launchOnyx();
-            } else {
-                cordova.requestPermission(this, PERMISSIONS_REQUEST_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            switch (mPluginAction) {
+                case MATCH:
+                    doMatch();
+                    break;
+                case CAPTURE:
+                    launchOnyx();
+                    break;
             }
-            return true;
+        } else {
+            onError("Invalid plugin action.");
         }
-        return false;
+        return true;
     }
 
     public static void onFinished(int resultCode, JSONObject result) {
@@ -124,7 +166,6 @@ public class OnyxPlugin extends CordovaPlugin {
                 result.put("action", mExecuteAction);
             } catch (JSONException e) {
                 String errorMessage = "Failed to set JSON key value pair: " + e.getMessage();
-                Log.e(TAG, errorMessage);
                 mCallbackContext.error(errorMessage);
                 mPluginResult = new PluginResult(PluginResult.Status.ERROR);
             }
@@ -137,45 +178,55 @@ public class OnyxPlugin extends CordovaPlugin {
         mCallbackContext.sendPluginResult(mPluginResult);
     }
 
+    private void keepCordovaCallback() {
+        mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+        mPluginResult.setKeepCallback(true);
+        mCallbackContext.sendPluginResult(mPluginResult);
+    }
+
     public static void onError(String errorMessage) {
+        Log.e(TAG, errorMessage);
         mCallbackContext.error(errorMessage);
         mPluginResult = new PluginResult(PluginResult.Status.ERROR);
         mCallbackContext.sendPluginResult(mPluginResult);
     }
 
-    @Override
-    public void onRequestPermissionResult(int requestCode, String[] permissions,
-                                          int[] grantResults) throws JSONException {
-        super.onRequestPermissionResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_STORAGE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    launchOnyx();
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Log.e(TAG, "Storage permission denied.");
-                    onError("Write external storage permission denied.");
-                }
-            }
-        }
-    }
-
     private void launchOnyx() {
         mActivity.runOnUiThread(new Runnable() {
             public void run() {
-                Bundle bundle = new Bundle();
-                bundle.putString("options", mArgsString);
-                Intent onyxIntent = new Intent(mContext, OnyxActivity.class)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                onyxIntent.putExtra("options", mArgsString);
+                Intent onyxIntent = new Intent(mContext, OnyxActivity.class);
                 mContext.startActivity(onyxIntent);
             }
         });
-        mPluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
-        mPluginResult.setKeepCallback(true);
-        mCallbackContext.sendPluginResult(mPluginResult);
+        keepCordovaCallback();
+    }
+
+    private void doMatch() throws JSONException {
+        String encodedReference = mArgs.getString("reference");
+        String encodedProbe = mArgs.getString("probe");
+        byte[] referenceBytes = Base64.decode(encodedReference, 0);
+        byte[] probeBytes = Base64.decode(encodedProbe, 0);
+        FingerprintTemplate reference = new FingerprintTemplate(referenceBytes, 0);
+        FingerprintTemplate probe = new FingerprintTemplate(probeBytes, 0);
+        OnyxMatch matchTask = new OnyxMatch(mContext, OnyxPlugin.this);
+        matchTask.execute(reference, probe);
+    }
+
+    @Override
+    public void onMatchFinished(boolean match, float score) {
+        JSONObject result = new JSONObject();
+        String errorMessage = null;
+        try {
+            result.put("isVerified", match);
+            result.put("matchScore", score);
+        } catch (JSONException e) {
+            errorMessage = "Failed to set JSON key value pair: " + e.toString();
+        }
+        if (null != errorMessage) {
+            Log.e(TAG, errorMessage);
+            onError(errorMessage);
+        } else {
+            onFinished(Activity.RESULT_OK, result);
+        }
     }
 }
