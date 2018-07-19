@@ -1,4 +1,4 @@
-# Version 5.0.0
+# Version 5.0.1
 ## What's New
 * Fixed bugs introduced by updating to onyx-camera:5.0.8 in build-extras.gradle
 
