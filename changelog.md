@@ -1,5 +1,9 @@
 # Version 5.0.0
 ## What's New
+* Fixed bugs introduced by updating to onyx-camera:5.0.8 in build-extras.gradle
+
+# Version 5.0.0
+## What's New
 * Updated to Onyx version 5.0
 #### Breaking Changes
 * Using the new OnyxCamera CocoaPod for iOS.

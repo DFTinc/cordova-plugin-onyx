@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-onyx",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Cordova plugin to use ONYX",
   "cordova": {
     "id": "cordova-plugin-onyx",

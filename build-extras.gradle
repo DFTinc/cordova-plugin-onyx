@@ -4,8 +4,6 @@ android {
         exclude 'META-INF/NOTICE'
     }
     defaultConfig {
-        // Enabling multidex support.
-        multiDexEnabled true
     }
 }
 

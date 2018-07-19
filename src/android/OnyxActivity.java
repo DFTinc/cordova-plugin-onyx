@@ -316,19 +316,19 @@ public class OnyxActivity extends Activity {
             String base64EncodedWsqBytes = null;
             String base64EncodedFingerprintTemplate = null;
             try {
-                if (null != onyxResult.getRawFingerprintBitmap()) {
+                if (null != onyxResult.getRawFingerprintImage()) {
                     rawFingerprintDataUri = getDataUriFromBitmap(
-                            onyxResult.getRawFingerprintBitmap());
+                            onyxResult.getRawFingerprintImage());
                     result.put("rawFingerprintDataUri", rawFingerprintDataUri);
                 }
-                if (null != onyxResult.getProcessedFingerprintBitmap()) {
+                if (null != onyxResult.getProcessedFingerprintImage()) {
                     processedFingerprintDataUri = getDataUriFromBitmap(
-                            onyxResult.getProcessedFingerprintBitmap());
+                            onyxResult.getProcessedFingerprintImage());
                     result.put("processedFingerprintDataUri", processedFingerprintDataUri);
                 }
-                if (null != onyxResult.getEnhancedFingerprintBitmap()) {
+                if (null != onyxResult.getEnhancedFingerprintImage()) {
                     enhancedFingerprintDataUri = getDataUriFromBitmap(
-                            onyxResult.getEnhancedFingerprintBitmap());
+                            onyxResult.getEnhancedFingerprintImage());
                     result.put("enhancedFingerprintDataUri", enhancedFingerprintDataUri);
                 }
                 if (null != onyxResult.getWsqData()) {
