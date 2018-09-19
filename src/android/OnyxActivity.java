@@ -143,11 +143,15 @@ public class OnyxActivity extends Activity {
                     .setOnyxCallback(new OnyxConfiguration.OnyxCallback() {
                         @Override
                         public void onConfigured(Onyx configuredOnyx) {
-                            mOnyx = configuredOnyx;
-                            mOnyx.create(mActivity);
-                            if (!mUseManualCapture) {
-                                mOnyx.capture();
-                            }
+                            mActivity.runOnUiThread(new Runnable() {
+                                public void run() {
+                                    mOnyx = configuredOnyx;
+                                    mOnyx.create(mActivity);
+                                    if (!mUseManualCapture) {
+                                        mOnyx.capture();
+                                    }
+                                }
+                            });
                         }
                     });
 
