@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 
+import static com.dft.onyxcamera.config.OnyxConfiguration.ErrorCallback.Error.AUTOFOCUS_FAILURE;
+
 
 public class OnyxActivity extends Activity {
     private static final String TAG = OnyxActivity.class.getSimpleName();
@@ -135,14 +137,24 @@ public class OnyxActivity extends Activity {
                     .setErrorCallback(new OnyxConfiguration.ErrorCallback() {
                         @Override
                         public void onError(OnyxError error) {
-                            Log.e(TAG, error.errorMessage);
-                            OnyxPlugin.onError(error.errorMessage);
-                            finish();
+                            Log.e(TAG, error.toString());
+                            if (error.error != AUTOFOCUS_FAILURE) {
+                                OnyxPlugin.onError(error.errorMessage);
+                                finish();
+                            } else {
+                                mActivity.runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        if (!mUseManualCapture) {
+                                            mOnyx.capture();
+                                        }
+                                    }
+                                });
+                            }
                         }
                     })
                     .setOnyxCallback(new OnyxConfiguration.OnyxCallback() {
                         @Override
-                        public void onConfigured(Onyx configuredOnyx) {
+                        public void onConfigured(final Onyx configuredOnyx) {
                             mActivity.runOnUiThread(new Runnable() {
                                 public void run() {
                                     mOnyx = configuredOnyx;
