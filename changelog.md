@@ -1,3 +1,12 @@
+# Version 5.0.2
+## What's New
+* Updated to onyx-camera:5.1.1
+* Fixed issues with OnyxCallback
+* Changed install location of `build-extras.gradle`
+* Added `abiFilters` to `build-extras.gradle`
+* Restart capture iF `AUTOFOCUS_FAILURE` error is received.
+
+
 # Version 5.0.1
 ## What's New
 * Fixed bugs introduced by updating to onyx-camera:5.0.8 in build-extras.gradle
