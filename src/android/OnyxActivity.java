@@ -3,14 +3,23 @@ package com.dft.cordova.plugin.onyx;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.dft.onyxcamera.config.Onyx;
 import com.dft.onyxcamera.config.OnyxConfiguration;
@@ -44,6 +53,12 @@ public class OnyxActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         boolean showBackButton = true;
+        String backButtonText = "Back";
+        boolean showManualCaptureText = true;
+        String manualCaptureText = "Touch screen to capture.";
+        String infoText = null;
+        String infoTextColorHexString = null;
+        String base64ImageData = null;
 
         int backgroundColor = Color.parseColor(ONYX_BLUE_HEX_STRING);
         try {
@@ -63,6 +78,50 @@ public class OnyxActivity extends Activity {
                 showBackButton = OnyxPlugin.mArgs.getBoolean(
                         OnyxPlugin.OnyxConfig.SHOW_BACK_BUTTON.getKey());
             }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.BACK_BUTTON_TEXT.getKey())) {
+                backButtonText = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.BACK_BUTTON_TEXT.getKey());
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.SHOW_MANUAL_CAPTURE_TEXT.getKey())) {
+                showManualCaptureText = OnyxPlugin.mArgs.getBoolean(
+                        OnyxPlugin.OnyxConfig.SHOW_MANUAL_CAPTURE_TEXT.getKey());
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.MANUAL_CAPTURE_TEXT.getKey())) {
+                manualCaptureText = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.MANUAL_CAPTURE_TEXT.getKey());
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.MANUAL_CAPTURE_TEXT.getKey())) {
+                manualCaptureText = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.MANUAL_CAPTURE_TEXT.getKey());
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.INFO_TEXT.getKey())) {
+                String argsInfoText = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.INFO_TEXT.getKey());
+                if (!argsInfoText.isEmpty()) {
+                    infoText = argsInfoText;
+                }
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.INFO_TEXT_COLOR_HEX_STRING.getKey())) {
+                String argsInfoTextColorHexString = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.INFO_TEXT_COLOR_HEX_STRING.getKey());
+                if (!argsInfoTextColorHexString.isEmpty()) {
+                    infoTextColorHexString = argsInfoTextColorHexString;
+                }
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.BASE64_IMAGE_DATA.getKey())) {
+                String argsBase64ImageData = OnyxPlugin.mArgs.getString(
+                        OnyxPlugin.OnyxConfig.BASE64_IMAGE_DATA.getKey());
+                if (!argsBase64ImageData.isEmpty()) {
+                    base64ImageData = argsBase64ImageData;
+                }
+            }
         } catch (JSONException e) {
             String errorMessage = "Failed to set JSON key value pair: " + e.getMessage();
             onError(errorMessage);
@@ -71,23 +130,70 @@ public class OnyxActivity extends Activity {
             onError(errorMessage);
         }
 
-        RelativeLayout relativeLayout = new RelativeLayout(mContext);
-        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(
+        LinearLayout rootView = new LinearLayout(mContext);
+        rootView.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
+        rootView.setLayoutParams(llp);
+        rootView.setBackgroundColor(backgroundColor);
+
+        // Space for capture screen
+        // Higher weight number has lower priority
+        LinearLayout captureSpace = new LinearLayout(mContext);
+        LinearLayout.LayoutParams captureSpaceLayoutParams = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
+        captureSpaceLayoutParams.weight = 2;
+        captureSpace.setLayoutParams(captureSpaceLayoutParams);
+        captureSpace.setBackgroundColor(Color.TRANSPARENT);
 
-        relativeLayout.setBackgroundColor(backgroundColor);
+        // Start content 1/3 height from top.
+        RelativeLayout contentRelativeLayout = new RelativeLayout(mContext);
+        LinearLayout.LayoutParams contentLayoutParams = new LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        contentLayoutParams.weight = 1;
+        contentRelativeLayout.setLayoutParams(contentLayoutParams);
+
+        contentRelativeLayout.setBackgroundColor(Color.TRANSPARENT);
+
+        // Onyx branding
+        int onyxIconId = mContext.getResources()
+                .getIdentifier("onyx_icon", "drawable", OnyxPlugin.mPackageName);
+        Drawable onyxIcon = mContext.getResources().getDrawable(onyxIconId);
+        ImageView onyxImageView = new ImageView(mContext);
+        onyxImageView.setImageDrawable(onyxIcon);
+        RelativeLayout.LayoutParams onyxImageViewLayoutParams = new RelativeLayout.LayoutParams(
+                getPxForDp(mContext, 48),
+                getPxForDp(mContext, 48)
+        );
+        onyxImageViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        onyxImageViewLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        onyxImageViewLayoutParams.setMargins(16, 16, 16, 16);
+        onyxImageView.setLayoutParams(onyxImageViewLayoutParams);
+
+        contentRelativeLayout.addView(onyxImageView);
 
         if (showBackButton) {
+            // Border
+            GradientDrawable backgroundDrawable = new GradientDrawable();
+            backgroundDrawable.setShape(GradientDrawable.RECTANGLE);
+            backgroundDrawable.setColor(Color.parseColor("#25000000"));
+            backgroundDrawable.setStroke(5, Color.WHITE);
+
             Button backButton = new Button(mContext);
-            backButton.setText("Back");
+            backButton.setText(backButtonText);
             backButton.setTextColor(Color.WHITE);
+            backButton.setBackground(backgroundDrawable);
             RelativeLayout.LayoutParams buttonLayoutParams = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
             );
             buttonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            buttonLayoutParams.addRule(RelativeLayout.ALIGN_LEFT);
+            buttonLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            buttonLayoutParams.setMargins(16, 16, 16, 16);
             backButton.setLayoutParams(buttonLayoutParams);
 
             backButton.setOnClickListener(new View.OnClickListener() {
@@ -97,11 +203,27 @@ public class OnyxActivity extends Activity {
                 }
             });
 
-            relativeLayout.addView(backButton);
+            contentRelativeLayout.addView(backButton);
         }
 
         if (mUseManualCapture) {
-            relativeLayout.setOnClickListener(new View.OnClickListener() {
+            if (showManualCaptureText) {
+                TextView manualCaptureTextView = new TextView(mContext);
+                RelativeLayout.LayoutParams manualCaptureViewLayoutParams = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        getPxForDp(mContext, 48)
+                );
+                manualCaptureTextView.setText(manualCaptureText);
+                manualCaptureTextView.setGravity(Gravity.CENTER);
+                manualCaptureTextView.setTextColor(Color.WHITE);
+                manualCaptureTextView.setBackgroundColor(Color.parseColor("#25000000"));
+                int padding = getPxForDp(mContext, 8);
+                manualCaptureTextView.setPadding(padding, padding, padding, padding);
+                manualCaptureTextView.setLayoutParams(manualCaptureViewLayoutParams);
+                contentRelativeLayout.addView(manualCaptureTextView);
+            }
+
+            contentRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (null != mOnyx) {
@@ -111,7 +233,85 @@ public class OnyxActivity extends Activity {
             });
         }
 
-        setContentView(relativeLayout, rlp);
+
+
+        if (null != infoText || null != base64ImageData) {
+            LinearLayout infoView = new LinearLayout(mContext);
+            infoView.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams infoViewLayoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+            );
+            infoView.setLayoutParams(infoViewLayoutParams);
+
+            int padding = getPxForDp(mContext, 8);
+            int toolbarPadding = getPxForDp(mContext, 56);
+            boolean isTopPaddingNeeded = (mUseManualCapture && showManualCaptureText);
+
+            if (null != base64ImageData) {
+                ImageView imageView = new ImageView(mContext);
+                LinearLayout.LayoutParams imageViewLayoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        1
+                );
+                imageView.setLayoutParams(imageViewLayoutParams);
+                boolean isBottomPaddingNeeded = (null == infoText);
+                imageView.setPadding(
+                        padding,
+                        isTopPaddingNeeded ? toolbarPadding : padding,
+                        padding,
+                        isBottomPaddingNeeded ? toolbarPadding : 0
+                );
+
+                // Convert base64 image data to bitmap
+                byte[] decodedString = Base64.decode(base64ImageData, Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                imageView.setImageBitmap(bitmap);
+                infoView.addView(imageView);
+            }
+
+            if (null != infoText) {
+                int infoTextColor = isColorDark(backgroundColor) ? Color.WHITE : Color.BLACK;
+                if (null != infoTextColorHexString) {
+                    infoTextColor = Color.parseColor(infoTextColorHexString);
+                }
+
+                TextView infoTextView = new TextView(mContext);
+                LinearLayout.LayoutParams infoTextViewLayoutParams = new LinearLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        RelativeLayout.LayoutParams.MATCH_PARENT,
+                        1
+                );
+                infoTextView.setText(infoText);
+                infoTextView.setGravity(Gravity.CENTER);
+                infoTextView.setTextColor(infoTextColor);
+                infoTextView.setLayoutParams(infoTextViewLayoutParams);
+                infoTextView.setPadding(
+                        padding,
+                        (isTopPaddingNeeded && null == base64ImageData) ? toolbarPadding : padding,
+                        padding,
+                        toolbarPadding);
+                infoView.addView(infoTextView);
+            }
+
+            contentRelativeLayout.addView(infoView);
+        }
+
+        rootView.addView(captureSpace);
+        rootView.addView(contentRelativeLayout);
+        setContentView(rootView);
+    }
+
+    public int getPxForDp(Context context, float dp) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics);
+    }
+
+    public boolean isColorDark(int color) {
+        double darkness = 1 - (0.299 * Color.red(color) +
+                0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+        return darkness >= 0.19;
     }
 
     @Override

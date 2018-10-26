@@ -22,7 +22,7 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
 
     public static final String TAG = "OnyxPlugin";
 
-    public String mPackageName;
+    public static String mPackageName;
 
     public static CallbackContext mCallbackContext;
     public static PluginResult mPluginResult;
@@ -80,7 +80,13 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
         FLIP_HORIZONTAL("HORIZONTAL"),
         FLIP_VERTICAL("VERTICAL"),
         FLIP_BOTH("BOTH"),
-        FLIP_NONE("NONE");
+        FLIP_NONE("NONE"),
+        SHOW_MANUAL_CAPTURE_TEXT("showManualCaptureText"),
+        MANUAL_CAPTURE_TEXT("manualCaptureText"),
+        BACK_BUTTON_TEXT("backButtonText"),
+        INFO_TEXT("infoText"),
+        INFO_TEXT_COLOR_HEX_STRING("infoTextColorHexString"),
+        BASE64_IMAGE_DATA("base64ImageData");
         private final String key;
 
         OnyxConfig(String key){

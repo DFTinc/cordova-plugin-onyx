@@ -38,6 +38,8 @@ NSString * const LAYOUT_PREFERENCE = @"layoutPreference";
 NSString * const LAYOUT_PREFERENCE_UPPER_THIRD = @"UPPER_THIRD";
 NSString * const LAYOUT_PREFERENCE_FULL = @"FULL";
 NSString * const USE_MANUAL_CAPTURE = @"useManualCapture";
+NSString * const SHOW_MANUAL_CAPTURE_TEXT = @"showManualCaptureText";
+NSString * const MANUAL_CAPTURE_TEXT = @"manualCaptureText";
 NSString * const USE_ONYX_LIVE = @"useOnyxLive";
 NSString * const USE_FLASH = @"useFlash";
 NSString * const RETICLE_ORIENTATION = @"reticleOrientation";
@@ -53,6 +55,10 @@ NSString * const FLIP_BOTH = @"BOTH";
 NSString * const FLIP_NONE = @"NONE";
 NSString * const PROBE = @"probe";
 NSString * const REFERENCE = @"reference";
+NSString * const BACK_BUTTON_TEXT = @"backButtonText";
+NSString * const INFO_TEXT = @"infoText";
+NSString * const INFO_TEXT_COLOR_HEX_STRING = @"infoTextColorHexString";
+NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
 
 - (void)match:(CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
@@ -78,7 +84,7 @@ NSString * const REFERENCE = @"reference";
             return;
         }
     }
-    
+
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:_callbackId];
 }
@@ -96,83 +102,127 @@ NSString * const REFERENCE = @"reference";
     }
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:_callbackId];
-    
+
 }
 
 // private method
 - (void)setupOnyx {
     NSString* onyxLicense = [_args objectForKey:ONYX_LICENSE];
-    
+
     OnyxConfigurationBuilder* onyxConfigBuilder = [[OnyxConfigurationBuilder alloc] init];
     onyxConfigBuilder.setViewController(self.viewController)
     .setLicenseKey(onyxLicense)
     .setSuccessCallback([self onyxSuccessCallback])
     .setErrorCallback([self onyxErrorCallback])
     .setOnyxCallback([self onyxCallback]);
-    
+
     if ([[_args objectForKey:RETURN_RAW_IMAGE] boolValue]) {
         onyxConfigBuilder.setReturnRawImage([[_args objectForKey:RETURN_RAW_IMAGE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_GRAY_RAW_IMAGE] boolValue]) {
         onyxConfigBuilder.setReturnGrayRawImage([[_args objectForKey:RETURN_GRAY_RAW_IMAGE] boolValue]);
     }
     if ([[_args objectForKey:RETURN_PROCESSED_IMAGE] boolValue]) {
         onyxConfigBuilder.setReturnProcessedImage([[_args objectForKey:RETURN_PROCESSED_IMAGE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_ENHANCED_IMAGE] boolValue]) {
         onyxConfigBuilder.setReturnEnhancedImage([[_args objectForKey:RETURN_ENHANCED_IMAGE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_BLACK_WHITE_PROCESSED_IMAGE] boolValue]) {
         onyxConfigBuilder.setReturnBlackWhiteProcessedImage([[_args objectForKey:RETURN_BLACK_WHITE_PROCESSED_IMAGE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_WSQ] boolValue]) {
         onyxConfigBuilder.setReturnWSQ([[_args objectForKey:RETURN_WSQ] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_GRAY_RAW_WSQ] boolValue]) {
         onyxConfigBuilder.setReturnGrayRawWSQ([[_args objectForKey:RETURN_GRAY_RAW_WSQ] boolValue]);
     }
-    
+
     if ([[_args objectForKey:RETURN_FINGERPRINT_TEMPLATE] boolValue]) {
         onyxConfigBuilder.setReturnFingerprintTemplate([[_args objectForKey:RETURN_FINGERPRINT_TEMPLATE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:USE_FLASH] boolValue]) {
         onyxConfigBuilder.setUseFlash([[_args objectForKey:USE_FLASH] boolValue]);
     }
-    
+
     if ([[_args objectForKey:USE_ONYX_LIVE] boolValue]) {
         onyxConfigBuilder.setUseOnyxLive([[_args objectForKey:USE_ONYX_LIVE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:SHOULD_INVERT] boolValue]) {
         onyxConfigBuilder.setShouldInvert([[_args objectForKey:SHOULD_INVERT] boolValue]);
     }
-    
+
     if ([[_args objectForKey:SHOULD_SEGMENT] boolValue]) {
         onyxConfigBuilder.setShouldSegment([[_args objectForKey:SHOULD_SEGMENT] boolValue]);
     }
-    
+
     if ([[_args objectForKey:SHOULD_CONVERT_TO_ISO_TEMPLATE] boolValue]) {
         onyxConfigBuilder.setShouldConvertToISOTemplate([[_args objectForKey:SHOULD_CONVERT_TO_ISO_TEMPLATE] boolValue]);
     }
-    
+
     if ([[_args objectForKey:WHOLE_FINGER_CROP] boolValue]) {
         onyxConfigBuilder.setWholeFingerCrop([[_args objectForKey:WHOLE_FINGER_CROP] boolValue]);
     }
-    
+
     if ([[_args objectForKey:SHOW_LOADING_SPINNER] boolValue]) {
         onyxConfigBuilder.setShowLoadingSpinner([[_args objectForKey:SHOW_LOADING_SPINNER] boolValue]);
     }
-    
+
+    if ([[_args objectForKey:USE_MANUAL_CAPTURE] boolValue]) {
+        onyxConfigBuilder.setUseManualCapture([[_args objectForKey:USE_MANUAL_CAPTURE] boolValue]);
+    }
+
+    // Default is true so check if it should be hidden
+    if (![[_args objectForKey:SHOW_MANUAL_CAPTURE_TEXT] boolValue]) {
+        onyxConfigBuilder.setShowManualCaptureText([[_args objectForKey:SHOW_MANUAL_CAPTURE_TEXT] boolValue]);
+    }
+
     if ([_args objectForKey:BACKGROUND_COLOR_HEX_STRING]) {
         NSString *backgroundColorHexString = [_args objectForKey:BACKGROUND_COLOR_HEX_STRING];
         if (![backgroundColorHexString isEqualToString:@""]) {
             onyxConfigBuilder.setBackgroundColorHexString(backgroundColorHexString);
+        }
+    }
+
+    if ([_args objectForKey:BACK_BUTTON_TEXT]) {
+        NSString *backButtonText = [_args objectForKey:BACK_BUTTON_TEXT];
+        if (![backButtonText isEqualToString:@""]) {
+            onyxConfigBuilder.setBackButtonText(backButtonText);
+        }
+    }
+
+    if ([_args objectForKey:MANUAL_CAPTURE_TEXT]) {
+        NSString *manualCaptureText = [_args objectForKey:MANUAL_CAPTURE_TEXT];
+        if (![manualCaptureText isEqualToString:@""]) {
+            onyxConfigBuilder.setManualCaptureText(manualCaptureText);
+        }
+    }
+
+    if ([_args objectForKey:INFO_TEXT]) {
+        NSString *infoText = [_args objectForKey:INFO_TEXT];
+        if (![infoText isEqualToString:@""]) {
+            onyxConfigBuilder.setInfoText(infoText);
+        }
+    }
+
+    if ([_args objectForKey:INFO_TEXT_COLOR_HEX_STRING]) {
+        NSString *infoTextColorHexString = [_args objectForKey:INFO_TEXT_COLOR_HEX_STRING];
+        if (![infoTextColorHexString isEqualToString:@""]) {
+            onyxConfigBuilder.setInfoTextColorHexString(infoTextColorHexString);
+        }
+    }
+
+    if ([_args objectForKey:BASE64_IMAGE_DATA]) {
+        NSString *base64ImageData = [_args objectForKey:BASE64_IMAGE_DATA];
+        if (![base64ImageData isEqualToString:@""]) {
+            onyxConfigBuilder.setBase64ImageData(base64ImageData);
         }
     }
     
