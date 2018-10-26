@@ -1,10 +1,26 @@
+# Version 5.1.0
+## What's New
+* Updated to use OnyxCamera Cocoapod 5.1.1
+* Updated to use onyx-camera 5.1.2
+* implemented `useManualCapture` on iOS
+* Added capture screen customizations to match changes to OnyxCamera CocoaPod.
+    * Added new configuration options
+        * `backButtonText`
+        * `showManualCaptureText`
+        * `manualCaptureText`
+        * `infoText`
+        * `infoTextColorHexString`
+        * `base64ImageData`
+* Included ability to localize text for back button and manual capture text.
+* Added ability to add custom message and image to capture screen.
+
 # Version 5.0.2
 ## What's New
 * Updated to onyx-camera:5.1.1
 * Fixed issues with OnyxCallback
 * Changed install location of `build-extras.gradle`
 * Added `abiFilters` to `build-extras.gradle`
-* Restart capture iF `AUTOFOCUS_FAILURE` error is received.
+* Restart capture if `AUTOFOCUS_FAILURE` error is received.
 
 
 # Version 5.0.1
