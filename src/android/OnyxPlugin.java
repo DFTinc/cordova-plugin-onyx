@@ -8,6 +8,8 @@ import org.apache.cordova.CordovaInterface;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
@@ -15,13 +17,16 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import com.dft.onyx.FingerprintTemplate;
 
 public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCallback {
 
     public static final String TAG = "OnyxPlugin";
-
+    public static final String IMAGE_URI_PREFIX = "data:image/jpeg;base64,";
     public static String mPackageName;
 
     public static CallbackContext mCallbackContext;
@@ -33,16 +38,17 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
     private static String mExecuteAction;
 
     public static PluginAction mPluginAction;
-    public static enum PluginAction {
+
+    public enum PluginAction {
         CAPTURE("capture"),
         MATCH("match");
         private final String key;
 
-        PluginAction(String key){
+        PluginAction(String key) {
             this.key = key;
         }
 
-        public String getKey(){
+        public String getKey() {
             return this.key;
         }
     }
@@ -57,6 +63,7 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
         SHOULD_SEGMENT("shouldSegment"),
         SHOULD_CONVERT_TO_ISO_TEMPLATE("shouldConvertToISOTemplate"),
         IMAGE_ROTATION("imageRotation"),
+        FINGER_DETECT_MODE("fingerDetectMode"),
         WHOLE_FINGER_CROP("wholeFingerCrop"),
         CROP_SIZE("cropSize"),
         CROP_SIZE_WIDTH("width"),
@@ -76,30 +83,28 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
         RETICLE_SCALE("reticleScale"),
         BACKGROUND_COLOR_HEX_STRING("backgroundColorHexString"),
         SHOW_BACK_BUTTON("showBackButton"),
-        FLIP("flip"),
-        FLIP_HORIZONTAL("HORIZONTAL"),
-        FLIP_VERTICAL("VERTICAL"),
-        FLIP_BOTH("BOTH"),
-        FLIP_NONE("NONE"),
         SHOW_MANUAL_CAPTURE_TEXT("showManualCaptureText"),
         MANUAL_CAPTURE_TEXT("manualCaptureText"),
         BACK_BUTTON_TEXT("backButtonText"),
         INFO_TEXT("infoText"),
         INFO_TEXT_COLOR_HEX_STRING("infoTextColorHexString"),
-        BASE64_IMAGE_DATA("base64ImageData");
+        BASE64_IMAGE_DATA("base64ImageData"),
+        REFERENCE("reference"),
+        PROBE("probe"),
+        PYRAMID_SCALES("pyramidScales");
         private final String key;
 
-        OnyxConfig(String key){
+        OnyxConfig(String key) {
             this.key = key;
         }
 
-        public String getKey(){
+        public String getKey() {
             return this.key;
         }
     }
 
     /**
-     * Constructor.
+     * Constructor
      */
     public OnyxPlugin() {
     }
@@ -201,6 +206,7 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
         mActivity.runOnUiThread(new Runnable() {
             public void run() {
                 Intent onyxIntent = new Intent(mContext, OnyxActivity.class);
+                onyxIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(onyxIntent);
             }
         });
@@ -208,14 +214,46 @@ public class OnyxPlugin extends CordovaPlugin implements OnyxMatch.MatchResultCa
     }
 
     private void doMatch() throws JSONException {
-        String encodedReference = mArgs.getString("reference");
-        String encodedProbe = mArgs.getString("probe");
+        // Get values for JSON keys
+        String encodedReference = mArgs.getString(OnyxConfig.REFERENCE.getKey());
+        String encodedProbe = mArgs.getString(OnyxConfig.PROBE.getKey());
+        JSONArray scalesJSONArray = null;
+        if (mArgs.has(OnyxConfig.PYRAMID_SCALES.getKey())) {
+            scalesJSONArray = mArgs.getJSONArray(OnyxConfig.PYRAMID_SCALES.getKey());
+        }
+
+        // Decode reference fingerprint template data
         byte[] referenceBytes = Base64.decode(encodedReference, 0);
-        byte[] probeBytes = Base64.decode(encodedProbe, 0);
-        FingerprintTemplate reference = new FingerprintTemplate(referenceBytes, 0);
-        FingerprintTemplate probe = new FingerprintTemplate(probeBytes, 0);
+
+        // Get encoded probe processed fingerprint image data from image URI
+        String encodedProbeDataString = encodedProbe.substring(IMAGE_URI_PREFIX.length(), encodedProbe.length());
+
+        // Decode probe probe image data
+        byte[] probeBytes = Base64.decode(encodedProbeDataString, 0);
+
+        // Create a bitmap from the probe bytes
+        Bitmap probeBitmap = BitmapFactory.decodeByteArray(probeBytes, 0, probeBytes.length);
+
+        // Create a mat from the bitmap
+        Mat matProbe = new Mat();
+        Utils.bitmapToMat(probeBitmap, matProbe);
+        Imgproc.cvtColor(matProbe, matProbe, Imgproc.COLOR_RGB2GRAY);
+
+        // Create reference fingerprint template from bytes
+        FingerprintTemplate ftRef = new FingerprintTemplate(referenceBytes, 0);
+
+        // Convert pyramid scales from JSON array to double array
+        double[] argsScales = null;
+        if (null != scalesJSONArray && scalesJSONArray.length() > 0) {
+            argsScales = new double[scalesJSONArray.length()];
+            for (int i = 0; i < argsScales.length; i++) {
+                argsScales[i] = Double.parseDouble(scalesJSONArray.optString(i));
+            }
+        }
+        final double[] pyramidScales = argsScales;
+
         OnyxMatch matchTask = new OnyxMatch(mContext, OnyxPlugin.this);
-        matchTask.execute(reference, probe);
+        matchTask.execute(ftRef, matProbe, pyramidScales);
     }
 
     @Override

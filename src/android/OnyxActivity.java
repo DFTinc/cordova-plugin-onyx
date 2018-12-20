@@ -36,7 +36,6 @@ import java.io.ByteArrayOutputStream;
 
 import static com.dft.onyxcamera.config.OnyxConfiguration.ErrorCallback.Error.AUTOFOCUS_FAILURE;
 
-
 public class OnyxActivity extends Activity {
     private static final String TAG = OnyxActivity.class.getSimpleName();
     private static final String ONYX_BLUE_HEX_STRING = "#3698D3";
@@ -234,7 +233,6 @@ public class OnyxActivity extends Activity {
         }
 
 
-
         if (null != infoText || null != base64ImageData) {
             LinearLayout infoView = new LinearLayout(mContext);
             infoView.setOrientation(LinearLayout.VERTICAL);
@@ -403,11 +401,15 @@ public class OnyxActivity extends Activity {
             }
 
             if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.IMAGE_ROTATION.getKey())) {
-                String imageRotationString = OnyxPlugin.mArgs.getString(
+                int imageRotation = OnyxPlugin.mArgs.getInt(
                         OnyxPlugin.OnyxConfig.IMAGE_ROTATION.getKey());
-                if (!imageRotationString.isEmpty()) {
-                    onyxConfigurationBuilder.setImageRotation(Integer.parseInt(imageRotationString));
-                }
+                onyxConfigurationBuilder.setImageRotation(imageRotation);
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.FINGER_DETECT_MODE.getKey())) {
+                int fingerDetectMode = OnyxPlugin.mArgs.getInt(
+                        OnyxPlugin.OnyxConfig.FINGER_DETECT_MODE.getKey());
+                onyxConfigurationBuilder.setFingerDetectMode(fingerDetectMode);
             }
 
             if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.WHOLE_FINGER_CROP.getKey())) {
@@ -591,12 +593,11 @@ public class OnyxActivity extends Activity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] imageBytes = stream.toByteArray();
-        bitmap.recycle();
+//        bitmap.recycle();
         String dataUri = null;
         if (null != imageBytes) {
-            String dataUriPrefix = "data:image/jpeg;base64,";
             String encodedBytes = Base64.encodeToString(imageBytes, 0).trim();
-            dataUri = dataUriPrefix + encodedBytes;
+            dataUri = OnyxPlugin.IMAGE_URI_PREFIX + encodedBytes;
         }
         return dataUri;
     }

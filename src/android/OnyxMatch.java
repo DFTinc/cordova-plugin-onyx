@@ -3,27 +3,28 @@ package com.dft.cordova.plugin.onyx;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.dft.onyx.FingerprintTemplate;
 import com.dft.onyx.core;
-
 import org.opencv.core.Mat;
 
-public class OnyxMatch extends AsyncTask<FingerprintTemplate, Void, Float> {
+public class OnyxMatch extends AsyncTask<Object, Void, Float> {
     private Exception mException = null;
-    private Context mContext = null;
     private MatchResultCallback mMatchResultCallback = null;
 
     public OnyxMatch(Context context,  MatchResultCallback matchResult) {
-        mContext = context;
         mMatchResultCallback = matchResult;
     }
 
     @Override
-    protected Float doInBackground(FingerprintTemplate... templates) {
+    protected Float doInBackground(Object... params) {
         try {
-            return core.verify(templates[0], templates[1]);
+            FingerprintTemplate referenceTemplate = (FingerprintTemplate) params[0];
+            Mat probeMat = (Mat) params[1];
+            double[] pyramidScales = (double[]) params[2];
+            if (null == pyramidScales) {
+                pyramidScales = new double[]{0.8, 1.0, 1.2};
+            }
+            return core.pyramidVerify(referenceTemplate, probeMat, pyramidScales);
         } catch (Exception e) {
             mException = e;
             Log.e("OnyxMatch", "Exception verifying templates.", e);

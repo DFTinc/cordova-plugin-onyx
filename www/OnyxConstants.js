@@ -9,11 +9,11 @@ module.exports = {
     /*
     * @enum {string}
     * */
-    FLIP: {
-        HORIZONTAL: "HORIZONTAL",
-        VERTICAL: "VERTICAL",
-        BOTH: "BOTH",
-        NONE: "NONE"
+    IMAGE_ROTATION: {
+        ROTATE_NONE: 0,
+        ROTATE_90_COUNTER_CLOCKWISE: 90,
+        ROTATE_180: 180,
+        ROTATE_90_CLOCKWISE: 270
     },
     /*
     * @enum {string}
@@ -28,5 +28,12 @@ module.exports = {
     RETICLE_ORIENTATION: {
         LEFT: "LEFT",
         RIGHT: "RIGHT"
+    },
+    /*
+    * @enum {number}
+    * */
+    FINGER_DETECT_MODE: {
+        DEAD_FINGER: 0,
+        LIVE_FINGER: 1
     }
 };

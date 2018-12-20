@@ -1,3 +1,16 @@
+# Version 5.2.0
+* Updated to use onyxCamera Cocoapod v5.3.0
+* Changed OnyxMatch to use pyramidVerify()
+* Added new fingerDetect property for OnyxConfiguration
+* Removed shouldInvert
+* Fixed bug with useFlash
+* Added FLAG_ACTIVITY_NEW_TASK for starting OnyxActivity
+* Changed default crop size and crop factor
+* Removed FLIP enum
+* Added IMAGE_ROTATION and FINGER_DETECT_MODE enums
+
+ 
+
 # Version 5.1.1
 ## What's New
 * Updated to use OnyxCamera Cocoapod 5.1.1

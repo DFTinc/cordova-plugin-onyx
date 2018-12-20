@@ -24,10 +24,10 @@ NSString * const RETURN_BLACK_WHITE_PROCESSED_IMAGE = @"returnBlackWhiteProcesse
 NSString * const RETURN_WSQ = @"returnWSQ";
 NSString * const RETURN_GRAY_RAW_WSQ = @"returnGrayRawWSQ";
 NSString * const RETURN_FINGERPRINT_TEMPLATE = @"returnFingerprintTemplate";
-NSString * const SHOULD_INVERT = @"shouldInvert";
 NSString * const SHOULD_SEGMENT = @"shouldSegment";
 NSString * const SHOULD_CONVERT_TO_ISO_TEMPLATE = @"shouldConvertToISOTemplate";
 NSString * const IMAGE_ROTATION = @"imageRotation";
+NSString * const FINGER_DETECT_MODE = @"fingerDetectMode";
 NSString * const WHOLE_FINGER_CROP = @"wholeFingerCrop";
 NSString * const CROP_SIZE = @"cropSize";
 NSString * const CROP_SIZE_WIDTH = @"width";
@@ -48,13 +48,9 @@ NSString * const RETICLE_ORIENTATION_RIGHT = @"RIGHT";
 NSString * const RETICLE_ANGLE = @"reticleAngle";
 NSString * const RETICLE_SCALE = @"reticleScale";
 NSString * const BACKGROUND_COLOR_HEX_STRING = @"backgroundColorHexString";
-NSString * const FLIP = @"flip";
-NSString * const FLIP_HORIZONTAL = @"HORIZONTAL";
-NSString * const FLIP_VERTICAL = @"VERTICAL";
-NSString * const FLIP_BOTH = @"BOTH";
-NSString * const FLIP_NONE = @"NONE";
 NSString * const PROBE = @"probe";
 NSString * const REFERENCE = @"reference";
+NSString * const PYRAMID_SCALES = @"pyramidScales";
 NSString * const BACK_BUTTON_TEXT = @"backButtonText";
 NSString * const INFO_TEXT = @"infoText";
 NSString * const INFO_TEXT_COLOR_HEX_STRING = @"infoTextColorHexString";
@@ -70,10 +66,13 @@ NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
     if (_args != nil && [_OnyxAction length] > 0 && [_OnyxAction isEqualToString:PLUGIN_ACTION_MATCH]) {
         NSString* probeString = [_args objectForKey:PROBE];
         NSString* referenceString = [_args objectForKey:REFERENCE];
+        NSArray* scalesArray = [_args objectForKey:PYRAMID_SCALES];
         if (nil != PROBE && ![probeString isEqualToString:@""] && nil != referenceString && ![referenceString isEqualToString:@""]) {
-            NSData* probe = [[NSData alloc] initWithBase64EncodedString:probeString options:0];
-            NSData* reference = [[NSData alloc] initWithBase64EncodedString:referenceString options:0];
-            double score = [OnyxMatch match:probe with:reference];
+            NSData* referenceData = [[NSData alloc] initWithBase64EncodedString:referenceString options:0];
+            NSString* probeEncodedDataString = [probeString substringFromIndex:[IMAGE_URI_PREFIX length]];
+            NSData* probeData = [[NSData alloc] initWithBase64EncodedString:probeEncodedDataString options:0];
+            UIImage* probeImage = [UIImage imageWithData:probeData];
+            double score = [OnyxMatch pyramidMatch:referenceData withImage:probeImage scales:scalesArray];
             float threshold = 0.03f;
             Boolean isVerified = score > threshold;
             NSArray* keysArray = [NSArray arrayWithObjects: @"action", @"isVerified", @"matchScore", nil];
@@ -147,16 +146,10 @@ NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
         onyxConfigBuilder.setReturnFingerprintTemplate([[_args objectForKey:RETURN_FINGERPRINT_TEMPLATE] boolValue]);
     }
 
-    if ([[_args objectForKey:USE_FLASH] boolValue]) {
-        onyxConfigBuilder.setUseFlash([[_args objectForKey:USE_FLASH] boolValue]);
-    }
+    onyxConfigBuilder.setUseFlash([[_args objectForKey:USE_FLASH] boolValue]);
 
     if ([[_args objectForKey:USE_ONYX_LIVE] boolValue]) {
         onyxConfigBuilder.setUseOnyxLive([[_args objectForKey:USE_ONYX_LIVE] boolValue]);
-    }
-
-    if ([[_args objectForKey:SHOULD_INVERT] boolValue]) {
-        onyxConfigBuilder.setShouldInvert([[_args objectForKey:SHOULD_INVERT] boolValue]);
     }
 
     if ([[_args objectForKey:SHOULD_SEGMENT] boolValue]) {
@@ -225,24 +218,7 @@ NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
             onyxConfigBuilder.setBase64ImageData(base64ImageData);
         }
     }
-    
-    if ([_args objectForKey:FLIP]) {
-        NSString* flipString = [_args objectForKey:FLIP];
-        if (![flipString isEqualToString:@""]) {
-            Flip flip = HORIZONTAL;
-            if ([flipString isEqualToString:FLIP_HORIZONTAL]) {
-                flip = HORIZONTAL;
-            } else if ([flipString isEqualToString:FLIP_VERTICAL]) {
-                flip = VERTICAL;
-            } else if ([flipString isEqualToString:FLIP_BOTH]) {
-                flip = BOTH;
-            } else if ([flipString isEqualToString:FLIP_NONE]) {
-                flip = NONE;
-            }
-            onyxConfigBuilder.setFlip(flip);
-        }
-    }
-    
+
     if ([_args objectForKey:RETICLE_ORIENTATION]) {
         NSString* reticleOrientationString = [_args objectForKey:RETICLE_ORIENTATION];
         if (![reticleOrientationString isEqualToString:@""]) {
@@ -255,23 +231,23 @@ NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
             onyxConfigBuilder.setReticleOrientation(orientation);
         }
     }
-    
+
     if ([_args objectForKey:RETICLE_ANGLE]) {
         onyxConfigBuilder.setReticleAngle((int)[[_args objectForKey:RETICLE_ANGLE] integerValue]);
     }
-    
+
     if ([_args objectForKey:RETICLE_SCALE]) {
         onyxConfigBuilder.setReticleScale([[_args objectForKey:RETICLE_SCALE] floatValue]);
     }
-    
+
     if ([_args objectForKey:CROP_FACTOR]) {
         onyxConfigBuilder.setCropFactor([[_args objectForKey:CROP_FACTOR] floatValue]);
     }
-    
+
     if ([_args objectForKey:CROP_SIZE]) {
         NSDictionary* cropSize = [_args objectForKey:CROP_SIZE];
-        float width = 600;
-        float height = 960;
+        float width = 512;
+        float height = 300;
         float floatValue = 0;
         floatValue = [[cropSize objectForKey:CROP_SIZE_WIDTH] floatValue];
         if (floatValue != 0) {
@@ -279,13 +255,17 @@ NSString * const BASE64_IMAGE_DATA = @"base64ImageData";
         }
         floatValue = [[cropSize objectForKey:CROP_SIZE_HEIGHT] floatValue];
         if (floatValue != 0) {
-            width = floatValue;
+            height = floatValue;
         }
         onyxConfigBuilder.setCropSize(CGSizeMake(width, height));
     }
-    
+
     if ([_args objectForKey:IMAGE_ROTATION]) {
-        onyxConfigBuilder.setImageRotation((int)[[_args objectForKey:IMAGE_ROTATION] integerValue]);
+        onyxConfigBuilder.setImageRotation((ImageRotation)[[_args objectForKey:IMAGE_ROTATION] integerValue]);
+    }
+
+    if ([_args objectForKey:FINGER_DETECT_MODE]) {
+        onyxConfigBuilder.setFingerDetectMode((FingerDetectMode)[[_args objectForKey:FINGER_DETECT_MODE] integerValue]);
     }
     
     [onyxConfigBuilder buildOnyxConfiguration];
