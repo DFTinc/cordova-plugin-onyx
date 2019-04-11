@@ -43,6 +43,7 @@ public class OnyxActivity extends Activity {
     private Context mContext;
     private Onyx mOnyx;
     private boolean mUseManualCapture = false;
+    private boolean mIsProcessingManualCapture = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +68,11 @@ public class OnyxActivity extends Activity {
                 if (!backgroundColorHexString.isEmpty()) {
                     backgroundColor = Color.parseColor(backgroundColorHexString);
                 }
-                if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.USE_MANUAL_CAPTURE.getKey())) {
-                    mUseManualCapture = OnyxPlugin.mArgs.getBoolean(
-                            OnyxPlugin.OnyxConfig.USE_MANUAL_CAPTURE.getKey());
-                }
+            }
+
+            if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.USE_MANUAL_CAPTURE.getKey())) {
+                mUseManualCapture = OnyxPlugin.mArgs.getBoolean(
+                        OnyxPlugin.OnyxConfig.USE_MANUAL_CAPTURE.getKey());
             }
 
             if (OnyxPlugin.mArgs.has(OnyxPlugin.OnyxConfig.SHOW_BACK_BUTTON.getKey())) {
@@ -225,8 +227,11 @@ public class OnyxActivity extends Activity {
             contentRelativeLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (null != mOnyx) {
-                        mOnyx.capture();
+                    if (!mIsProcessingManualCapture) {
+                        mIsProcessingManualCapture = true;
+                        if (null != mOnyx) {
+                            mOnyx.capture();
+                        }
                     }
                 }
             });
@@ -593,8 +598,8 @@ public class OnyxActivity extends Activity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] imageBytes = stream.toByteArray();
-//        bitmap.recycle();
-        String dataUri = null;
+        bitmap.recycle();
+        //String dataUri = null;
         if (null != imageBytes) {
             String encodedBytes = Base64.encodeToString(imageBytes, 0).trim();
             dataUri = OnyxPlugin.IMAGE_URI_PREFIX + encodedBytes;
