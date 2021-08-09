@@ -16,10 +16,12 @@ repositories {
 
     maven {
         url 'http://nexus.diamondfortress.com/nexus/content/repositories/releases/'
+        allowInsecureProtocol true
     }
 
     maven {
         url 'http://nexus.diamondfortress.com/nexus/content/repositories/snapshots/'
+        allowInsecureProtocol true
     }
 
     maven {
@@ -29,6 +31,6 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.dft.android:onyx-camera:5.1.5'
+    implementation 'com.dft.android:onyx-camera:7.1.1'
     implementation 'com.android.support:multidex:1.0.3'
 }

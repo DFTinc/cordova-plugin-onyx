@@ -1,17 +1,17 @@
-function Onyx() {
-}
-
-Onyx.prototype.exec = function (params, successCallback, errorCallback) {
-    cordova.exec(
-        successCallback,
-        errorCallback,
+class Onyx {
+  static async exec(params) {
+    return new Promise((resolve, reject) => {
+      cordova.exec(
+        resolve,
+        reject,
         "OnyxPlugin",  // Java Class
         params.action, // action
         [ // Array of arguments to pass to the Java class
-            params
+          params
         ]
-    );
-};
+      );
+    });
+  }
+}
 
-Onyx = new Onyx();
 module.exports = Onyx;
