@@ -1,5 +1,5 @@
 {
-  "name": "cordova-plugin-onyx",
+  "name": "@dft/cordova-plugin-onyx",
   "version": "7.1.0",
   "description": "Cordova plugin to use ONYX",
   "cordova": {
