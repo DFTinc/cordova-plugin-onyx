@@ -10,4 +10,6 @@
 - (void(^)(OnyxResult* onyxResult))onyxSuccessCallback;
 - (void(^)(OnyxError* onyxError)) onyxErrorCallback;
 - (void(^)(Onyx* configuredOnyx))onyxCallback;
+- (NSString*) getFingerprintImageUri:(UIImage*)image;
+- (NSString*) getBase64EncodedString:(NSData*)data;
 @end

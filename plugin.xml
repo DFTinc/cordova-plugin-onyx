@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-onyx"
-        version="5.2.1">
+        version="7.1.0">
     <name>Onyx</name>
     <description>Cordova plugin to use Onyx</description>
     <license>Apache 2.0</license>
@@ -10,11 +10,7 @@
     <repo>https://github.com/DFTinc/cordova-plugin-onyx</repo>
     <issue>https://github.com/DFTinc/cordova-plugin-onyx/issues</issue>
 
-    <js-module src="www/OnyxPlugin.js" name="onyx">
-        <clobbers target="navigator.onyx" />
-    </js-module>
-
-    <js-module src="www/OnyxConstants.js" name="Onyx">
+    <js-module src="www/OnyxPlugin.js" name="Onyx">
         <clobbers target="Onyx" />
     </js-module>
 
@@ -48,7 +44,7 @@
 
         <header-file src="src/ios/CDVOnyxPlugin.h"/>
         <source-file src="src/ios/CDVOnyxPlugin.mm"/>
-        <framework src="OnyxCamera" type="podspec" spec="5.3.2" />
+        <framework src="OnyxCamera" type="podspec" spec="7.1.10" />
     </platform>
 
 </plugin>
