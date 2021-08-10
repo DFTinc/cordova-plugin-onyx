@@ -1,6 +1,6 @@
 {
   "name": "@dft/cordova-plugin-onyx",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "description": "Cordova plugin to use ONYX",
   "cordova": {
     "id": "cordova-plugin-onyx",
@@ -36,7 +36,10 @@
   "main": "esm/index.js",
   "module": "esm/index.js",
   "types": "esm/index.d.ts",
-  "dependencies": {
-    "@dft/onyx-typedefs": "1.0.0"
+  "peerDependencies": {
+    "@dft/onyx-typedefs": "^1.0.0"
+  },
+  "devDependencies": {
+    "@dft/onyx-typedefs": "^1.0.0"
   }
 }

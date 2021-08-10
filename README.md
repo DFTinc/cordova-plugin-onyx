@@ -6,7 +6,7 @@
 ## Install
 
 ```bash
-npm install @dft/cordova-plugin-onyx
+npm install @dft/cordova-plugin-onyx @dft/onyx-typedefs
 ```
 
 ## [API](https://github.com/DFTinc/onyx-typedefs#api)
