@@ -2,14 +2,15 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-onyx"
-        version="7.1.0">
+        version="7.1.2">
     <name>Onyx</name>
     <description>Cordova plugin to use Onyx</description>
     <license>Apache 2.0</license>
     <keywords>cordova,plugin,android,ios,iphone,fingerprint,authentication,touchless,onyx</keywords>
     <repo>https://github.com/DFTinc/cordova-plugin-onyx</repo>
     <issue>https://github.com/DFTinc/cordova-plugin-onyx/issues</issue>
-
+    <preference name="ONYX_ANDROID_SDK_VERSION" default="7.1.1"/>
+    <preference name="ONYX_IOS_SDK_VERSION" default="7.1.10"/>
     <js-module src="www/OnyxPlugin.js" name="Onyx">
         <clobbers target="Onyx" />
     </js-module>
@@ -29,6 +30,7 @@
         <source-file src="src/android/OnyxMatch.java" target-dir="src/com/dft/cordova/plugin/onyx"/>
         <source-file src="build-extras.gradle" target-dir="app" />
         <source-file src="res/onyx_icon.png" target-dir="app/src/main/res/drawable"/>
+        <framework src="com.dft.android:onyx-camera:$ONYX_ANDROID_SDK_VERSION"/>
     </platform>
 
     <!-- iOS -->
@@ -44,7 +46,7 @@
 
         <header-file src="src/ios/CDVOnyxPlugin.h"/>
         <source-file src="src/ios/CDVOnyxPlugin.mm"/>
-        <framework src="OnyxCamera" type="podspec" spec="7.1.10" />
+        <framework src="OnyxCamera" type="podspec" spec="$ONYX_IOS_SDK_VERSION" />
     </platform>
 
 </plugin>
