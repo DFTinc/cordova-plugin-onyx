@@ -10,3 +10,9 @@ npm install @dft/cordova-plugin-onyx @dft/onyx-typedefs
 ```
 
 ## [API](https://github.com/DFTinc/onyx-typedefs#api)
+
+## Preferences
+| Preference       | Default                  |
+| ------------- | ---------------------- |
+| **`ONYX_ANDROID_SDK_VERSION`** | <code>`7.1.1`</code> |
+| **`ONYX_IOS_SDK_VERSION`**   | <code>`7.1.10`</code>   |
